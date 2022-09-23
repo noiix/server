@@ -7,11 +7,10 @@ const mongoose = require('mongoose');
 const userRouter = require('./routes/userRouter')
 const dataRouter = require('./routes/DataRouter')
 const chatRouter = require('./routes/ChatRouter')
+require('./connections/userDB')
+require('./connections/musicDB')
 
 
-mongoose.connect(process.env.DB_LINK)
-    .then(() => console.log('database is connected'))
-    .catch(err => console.log(err))
 
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
