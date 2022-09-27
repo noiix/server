@@ -1,15 +1,18 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const {createUser, login} = require('../controllers/userController')
+const {createUser, emailVerify, login} = require('../controllers/userController')
 
-router.get('/', (req, res) => {
-    res.json('this is from userRouter')
-})
+router.get("/", (req, res) => {
+  res.json("this is from userRouter");
+});
 
-router.post('/create', createUser)
+// CODE FROM MOSTAFA
+// router.post("/create", createUser);
+// router.get('/userId/tracks')
+// router.post('/login', login)
 
-router.get('/userId/tracks')
-
-router.post('/login', login)
+router.get("/verify", emailVerify);
+router.post("/create", createUser);
+router.post("/login", login);
 
 module.exports = router;

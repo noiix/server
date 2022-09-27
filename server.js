@@ -1,27 +1,11 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-require('dotenv').config();
-const cors = require('cors');
-const PORT = process.env.PORT || 5001;
-const mongoose = require('mongoose');
-const userRouter = require('./routes/userRouter')
-const musicRouter = require('./routes/musicRouter')
-const chatRouter = require('./routes/ChatRouter')
-require('./connections/userDB')
-const crypto = require('crypto');
-// const {GridFsStorage} = require('multer-gridfs-storage');
-const path = require('path')
-const session = require('express-session');
-const fileUpload = require('express-fileupload')
 
-app.use(session({
-  saveUninitialized: true,
-  resave: true,
-  secret: 'any-string'
-}))
+
 
 app.use(fileUpload());
 
+// GRIDFS code from Frida
 
 // audio storage
 
@@ -45,11 +29,33 @@ app.use(fileUpload());
 
 // const upload = multer({storage})
 
+require("dotenv").config();
+const cors = require("cors");
+const PORT = process.env.PORT;
+const mongoose = require("mongoose");
+const userRouter = require("./routes/userRouter");
+const musicRouter = require("./routes/musicRouter");
+const chatRouter = require("./routes/ChatRouter");
+require("./connections/userDB");
+const session = require("express-session");
 
 app.use(express.json());
-app.use(express.urlencoded({extended:false}));
+app.use(express.urlencoded({ extended: false }));
 
 app.use(cors());
+
+// session configuration
+
+app.use(
+  session({
+    secret: process.env.SESSIONKEY,
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 12,
+    },
+  })
+);
 
 //routes
 
@@ -66,5 +72,5 @@ app.use('/chat', chatRouter);
 // server listen
 
 app.listen(PORT, () => {
-    console.log('listening on port ' + PORT)
+  console.log("listening on port " + PORT);
 });
