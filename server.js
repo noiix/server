@@ -6,12 +6,13 @@ const PORT = process.env.PORT || 5001;
 const mongoose = require('mongoose');
 const userRouter = require('./routes/userRouter')
 const dataRouter = require('./routes/DataRouter')
-const chatRouter = require('./routes/ChatRouter')
+const chatRouter = require('./routes/chatRouter')
 require('./connections/userDB')
 require('./connections/musicDB')
 const crypto = require('crypto');
+const multer  = require('multer');
 const {GridFsStorage} = require('multer-gridfs-storage');
-const path = require('path')
+const path = require('path');
 
 // audio storage
 
@@ -44,7 +45,7 @@ app.use(cors());
 //routes
 
 app.get('/', (req, res) => {
-    res.json('main page')
+    res.json({page:'main page', message: 'welcome'})
 })    
 app.use('/user', userRouter);
 app.use('/data', dataRouter);
