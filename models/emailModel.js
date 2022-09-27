@@ -5,8 +5,8 @@ let transport = nodemailer.createTransport({
   host: "smtp.strato.de",
   port: 465,
   auth: {
-    user: "sigurdurgur@gmail.com",
-    pass: "12345678",
+    user: process.env.MAILUSER,
+    pass: process.env.MAILPASS,
   },
 });
 
@@ -14,7 +14,7 @@ const sendMail = (mailTo, subject, message) => {
   return new Promise((resolve, reject) => {
     transport
       .sendMail({
-        from: "sigurdurgur@gmail.com",
+        from: "",
         to: mailTo,
         subject: subject,
         html: message,

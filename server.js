@@ -9,11 +9,25 @@ const dataRouter = require("./routes/DataRouter");
 const chatRouter = require("./routes/ChatRouter");
 require("./connections/userDB");
 require("./connections/musicDB");
+const session = require("express-session");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(cors());
+
+// session configuration
+
+app.use(
+  session({
+    secret: process.env.SESSIONKEY,
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 12,
+    },
+  })
+);
 
 //routes
 
