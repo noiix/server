@@ -3,8 +3,17 @@ const Schema = mongoose.Schema;
 
 
 const musicSchema = new Schema({
-    artist: {type: String, required: [true, 'artist name required']},
-    title: {type: String, required: [true, 'title is required']}
+    artist: {type: Schema.Types.ObjectId,
+        ref: 'User', required: true},
+    title: {type: String, required: [true, 'title is required']},
+    path: {type: String, required: true, unique: true},
+    private: {type: Boolean},
+    sharedWith: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 })
 
-module.exports = musicSchema;
+const Music = mongoose.model('Music', musicSchema)
+
+module.exports = Music;
