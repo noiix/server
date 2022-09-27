@@ -11,30 +11,30 @@ require('./connections/userDB')
 require('./connections/musicDB')
 const crypto = require('crypto');
 const multer  = require('multer');
-const {GridFsStorage} = require('multer-gridfs-storage');
+// const {GridFsStorage} = require('multer-gridfs-storage');
 const path = require('path');
 
 // audio storage
 
-const storage = new GridFsStorage({
-    url: process.env.DB_LINK_MUSIC,
-    file: (req, res) => {
-        return new Promise((resolve, reject) => {
-        crypto.randomBytes(16, (err, buf) => {
-            if (err) {
-              return reject(err);
-            }
-            const filename = buf.toString('hex') + path.extname(file.originalname);
-            const fileInfo = {
-              filename: filename,
-              bucketName: 'uploads'
-            };
-            resolve(fileInfo);
-          });
-        });
-    }})
+// const storage = new GridFsStorage({
+//     url: process.env.DB_LINK_MUSIC,
+//     file: (req, res) => {
+//         return new Promise((resolve, reject) => {
+//         crypto.randomBytes(16, (err, buf) => {
+//             if (err) {
+//               return reject(err);
+//             }
+//             const filename = buf.toString('hex') + path.extname(file.originalname);
+//             const fileInfo = {
+//               filename: filename,
+//               bucketName: 'uploads'
+//             };
+//             resolve(fileInfo);
+//           });
+//         });
+//     }})
 
-const upload = multer({storage})
+// const upload = multer({storage})
 
 
 app.use(express.json());
@@ -45,7 +45,7 @@ app.use(cors());
 //routes
 
 app.get('/', (req, res) => {
-    res.json({page:'main page', message: 'welcome'})
+    res.json({page:'main page', notification:{title: "Welcome to this amazing app", type: "success"}})
 })    
 app.use('/user', userRouter);
 app.use('/data', dataRouter);
