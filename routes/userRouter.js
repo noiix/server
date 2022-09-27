@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+
 const {createUser, emailVerify, login} = require('../controllers/userController')
 
 router.get("/", (req, res) => {
@@ -11,8 +12,11 @@ router.get("/", (req, res) => {
 // router.get('/userId/tracks')
 // router.post('/login', login)
 
+
 router.get("/verify", emailVerify);
 router.post("/create", createUser);
 router.post("/login", login);
+
+router.get('/userId/tracks', getAllTracks)
 
 module.exports = router;

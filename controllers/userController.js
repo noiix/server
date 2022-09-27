@@ -24,8 +24,6 @@ const bcrypt = require('bcrypt');
 //                     // in public case: store the file inside the folder "music"
                     
 //                 })
-            
-// }
 
 // const login = (req, res) => {
 //     let user = req.body;
@@ -54,6 +52,7 @@ const bcrypt = require('bcrypt');
 // }
 
 // module.exports = {createUser, login}
+
 
 
 //----------------------------------------------------------------
