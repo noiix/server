@@ -1,5 +1,11 @@
-const express = require('express');
+const express = require("express");
 const app = express();
+
+
+
+app.use(fileUpload());
+
+// GRIDFS code from Frida
 require('dotenv').config();
 const cors = require('cors');
 const PORT = process.env.PORT || 5001;
@@ -34,13 +40,37 @@ const path = require('path');
 //         });
 //     }})
 
+
 // const upload = multer({storage})
 
 
+require("dotenv").config();
+const cors = require("cors");
+const PORT = process.env.PORT;
+const mongoose = require("mongoose");
+const userRouter = require("./routes/userRouter");
+const musicRouter = require("./routes/musicRouter");
+const chatRouter = require("./routes/ChatRouter");
+require("./connections/userDB");
+const session = require("express-session");
+
 app.use(express.json());
-app.use(express.urlencoded({extended:false}));
+app.use(express.urlencoded({ extended: false }));
 
 app.use(cors());
+
+// session configuration
+
+app.use(
+  session({
+    secret: process.env.SESSIONKEY,
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 12,
+    },
+  })
+);
 
 //routes
 
@@ -48,14 +78,12 @@ app.get('/', (req, res) => {
     res.json({page:'main page', notification:{title: "Welcome to this amazing app", type: "success"}})
 })    
 app.use('/user', userRouter);
-app.use('/data', dataRouter);
+app.use('/music', musicRouter);
 app.use('/chat', chatRouter);
-
-
 
 
 // server listen
 
 app.listen(PORT, () => {
-    console.log('listening on port ' + PORT)
+  console.log("listening on port " + PORT);
 });
