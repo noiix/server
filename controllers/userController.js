@@ -1,8 +1,11 @@
 const User = require('../models/userModel')
 const Music = require('../models/musicModel')
-const fs = require('fs');
-const path = require('path')
+const Verification = require('../models/verificationModel')
+// const fs = require('fs');
+// const path = require('path')
 const bcrypt = require('bcrypt');
+const {sendMail} = require('../models/emailModel')
+const jwt = require('jsonwebtoken')
 
 // ------CODE FROM MOSTAFA-------
 
@@ -56,11 +59,6 @@ const bcrypt = require('bcrypt');
 
 
 //----------------------------------------------------------------
-const User = require("../models/userModel");
-const Verification = require("../models/verificationModel")
-const { sendMail } = require("../models/emailModel");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 
 const createUser = (req, res) => {
   const newUser = req.body;
@@ -157,4 +155,12 @@ const login = (req, res) => {
   });
 };
 
-module.exports = { createUser, emailVerify, login };
+const getAllUsers = (req, res) => {
+  if(req.session.user){
+    User.find()
+    .then(result => res.json(result))
+    .catch(err => res.json(err))
+  }
+}
+
+module.exports = { createUser, emailVerify, login, getAllUsers };
