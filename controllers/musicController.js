@@ -2,6 +2,16 @@ const Music = require('../models/musicModel')
 const fs = require('fs')
 const path = require('path')
 
+// const cloudinary = require('cloudinary').v2;
+// require('dotenv').config()
+
+// cloudinary.config({
+//     cloud_name: process.env.CLOUD_NAME,
+//     api_key: process.env.API_KEY,
+//     api_secret: process.env.API_SECRET
+// })
+
+
 const upload = (req, res) => {
     // input file = musicFile
     let fileName = req.files.musicFile.name;
@@ -25,22 +35,22 @@ const upload = (req, res) => {
     })
 }
 
-const getAllTracksByUser = (req, res) => {
-   Music.find({artist: req.session.user._id})
-   .then((musics) => {
-    res.json(musics)
-   })
-   .catch(err => res.json(err))
-}
+// const getAllTracksByUser = (req, res) => {
+//    Music.find({artist: req.session.user._id})
+//    .then((musics) => {
+//     res.json(musics)
+//    })
+//    .catch(err => res.json(err))
+// }
 
 
 
-const getAllTracks = (req, res) => {
-    //origin:5000/museics/userId/
-    // origin:5000/musics?user=userId
-    if(req.session.user) {
-        Music.find().then().catch()
-    }
-}
+// const getAllTracks = (req, res) => {
+//     if(req.session.user) {
+//         Music.find().then().catch()
+//     }
+// }
+
+
 
 module.exports = {upload, getAllTracksByUser}

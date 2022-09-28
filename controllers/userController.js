@@ -68,7 +68,7 @@ const createUser = (req, res) => {
   User.findOne({ email: newUser.email })
     .then((result) => {
       if (result) {
-        res.json({ message: "you already have an account" });
+        res.json({ notification: {title: "you already have an account",  type: "warning"}});
       } else {
         User.create(newUser).then((createdUser) => {
           let random = Math.random().toString(36).slice(-8);
@@ -87,7 +87,7 @@ const createUser = (req, res) => {
               );
             })
             .then((result) =>
-              res.json({ msg: "please check your email to verify" })
+              res.json({notification: {title: "please check your email to verify your account", type: "info"}})
             )
             .catch((error) => console.log(error));
         });
@@ -117,7 +117,7 @@ const emailVerify = (req, res) => {
           .catch((err) => console.log(err));
       });
     } else {
-      res.json({ msg: "verification not successful." });
+      res.json({notification: {title: "verification not successful.", type: "success"} });
     }
   });
 };
@@ -135,24 +135,24 @@ const login = (req, res) => {
             req.session.user = result;
             req.session.save();
             res.json({
-              msg: "password valid",
+              notification: {title: "password valid", type: "info"},
               token,
               result,
             });
           } else {
-            res.json({
-              msg: "wrong password",
+            res.json({notification:
+              {title: "wrong password", type: "error"}
             });
           }
         });
       } else {
-        res.json({
-          msg: "please verify your account",
+        res.json({notification:
+         { title: "please verify your account", type: "warning"}
         });
       }
     } else {
-      res.json({
-        msg: "please enter a valid email address",
+      res.json({notification:
+        {title: "please enter a valid email address", type: "error"}
       });
     }
   });
