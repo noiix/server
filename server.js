@@ -3,22 +3,9 @@ const app = express();
 
 
 
-app.use(fileUpload());
+// app.use(fileUpload());
 
 // GRIDFS code from Frida
-require('dotenv').config();
-const cors = require('cors');
-const PORT = process.env.PORT || 5001;
-const mongoose = require('mongoose');
-const userRouter = require('./routes/userRouter')
-const dataRouter = require('./routes/DataRouter')
-const chatRouter = require('./routes/chatRouter')
-require('./connections/userDB')
-require('./connections/musicDB')
-const crypto = require('crypto');
-const multer  = require('multer');
-// const {GridFsStorage} = require('multer-gridfs-storage');
-const path = require('path');
 
 // audio storage
 
@@ -50,7 +37,7 @@ const PORT = process.env.PORT;
 const mongoose = require("mongoose");
 const userRouter = require("./routes/userRouter");
 const musicRouter = require("./routes/musicRouter");
-const chatRouter = require("./routes/ChatRouter");
+const chatRouter = require("./routes/chatRouter");
 require("./connections/userDB");
 const session = require("express-session");
 

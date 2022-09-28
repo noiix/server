@@ -1,9 +1,3 @@
-const User = require('../models/userModel')
-const Music = require('../models/musicModel')
-const fs = require('fs');
-const path = require('path')
-const bcrypt = require('bcrypt');
-
 // ------CODE FROM MOSTAFA-------
 
 

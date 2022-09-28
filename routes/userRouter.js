@@ -17,6 +17,6 @@ router.get("/verify", emailVerify);
 router.post("/create", createUser);
 router.post("/login", login);
 
-router.get('/userId/tracks', getAllTracks)
+// router.get('/userId/tracks', getAllTracks)
 
 module.exports = router;
