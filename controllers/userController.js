@@ -1,64 +1,11 @@
 const User = require('../models/userModel')
 const Music = require('../models/musicModel')
 const Verification = require('../models/verificationModel')
-// const fs = require('fs');
-// const path = require('path')
 const bcrypt = require('bcrypt');
 const {sendMail} = require('../models/emailModel')
 const jwt = require('jsonwebtoken')
+const unirest = require("unirest");
 
-// ------CODE FROM MOSTAFA-------
-
-
-// const createUser = (req, res) => {
-//     const newUser = req.body;
-//                 User.create({...newUser, verified: true}).then(() => {
-//                     // create a folder named "email" inside the uploads folder in private case
-//                     fs.mkdir(path.join(__dirname, '../uploads/' + newUser.email), (err) => {
-//                         if(err) {
-//                             res.json(err)
-//                         }
-//                         else {
-//                             res.json('done')
-//                         }
-//                     })
-                
-
-//                     // in public case: store the file inside the folder "music"
-                    
-//                 })
-
-// const login = (req, res) => {
-//     let user = req.body;
-//     User.findOne({email: user.email})
-//         .then(result => {
-//             if(result !== null){
-//                 console.log(result)
-//                 if(result.verified === true) {
-//                     bcrypt.compare(user.password, result.password, (err, data) => {
-//                         if(err) {
-//                             res.json(err)
-//                         } 
-//                         else{
-//                             req.session.user = result;
-//                             res.json(result)
-//                         }
-//                     })
-//                 }
-//                 else {
-//                     res.json('user not verified')
-//                 }
-//             }else {
-//                 res.json('error, user doesn"t exist')
-//             }
-//         })
-// }
-
-// module.exports = {createUser, login}
-
-
-
-//----------------------------------------------------------------
 
 const createUser = (req, res) => {
   const newUser = req.body;
@@ -131,10 +78,24 @@ const login = (req, res) => {
             });
             req.session.user = result;
             req.session.save();
-            res.json({
-              notification: {title: "password valid", type: "info"},
-              token,
-              result,
+
+            const apiCall = unirest(
+              "GET",
+              "https://ip-geolocation-ipwhois-io.p.rapidapi.com/json/"
+            );
+            apiCall.headers({
+              "x-rapidapi-host": "ip-geolocation-ipwhois-io.p.rapidapi.com",
+              "x-rapidapi-key": "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44"
+            });
+            apiCall.end(function(location) {
+              if (res.error) throw new Error(location.error);
+              console.log(location.body);
+              res.json({
+                notification: {title: "password valid", type: "info"},
+                token,
+                result,
+                location
+              });
             });
           } else {
             res.json({notification:
@@ -163,4 +124,68 @@ const getAllUsers = (req, res) => {
   }
 }
 
-module.exports = { createUser, emailVerify, login, getAllUsers };
+const getAllMusicByUser = (req, res) => {
+  if(req.session.user) {
+    Music.find().populate('artist')
+    .then(result => res.json(result))
+    .catch(err => res.json(err))
+  }
+}
+
+module.exports = { createUser, emailVerify, login, getAllUsers, getAllMusicByUser };
+
+
+
+
+// ------CODE FROM MOSTAFA-------
+
+
+// const createUser = (req, res) => {
+//     const newUser = req.body;
+//                 User.create({...newUser, verified: true}).then(() => {
+//                     // create a folder named "email" inside the uploads folder in private case
+//                     fs.mkdir(path.join(__dirname, '../uploads/' + newUser.email), (err) => {
+//                         if(err) {
+//                             res.json(err)
+//                         }
+//                         else {
+//                             res.json('done')
+//                         }
+//                     })
+                
+
+//                     // in public case: store the file inside the folder "music"
+                    
+//                 })
+
+// const login = (req, res) => {
+//     let user = req.body;
+//     User.findOne({email: user.email})
+//         .then(result => {
+//             if(result !== null){
+//                 console.log(result)
+//                 if(result.verified === true) {
+//                     bcrypt.compare(user.password, result.password, (err, data) => {
+//                         if(err) {
+//                             res.json(err)
+//                         } 
+//                         else{
+//                             req.session.user = result;
+//                             res.json(result)
+//                         }
+//                     })
+//                 }
+//                 else {
+//                     res.json('user not verified')
+//                 }
+//             }else {
+//                 res.json('error, user doesn"t exist')
+//             }
+//         })
+// }
+
+// module.exports = {createUser, login}
+
+
+
+//----------------------------------------------------------------

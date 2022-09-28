@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const {createUser, emailVerify, login, getAllUsers} = require('../controllers/userController')
+const {createUser, emailVerify, login, getAllMusicByUser} = require('../controllers/userController')
 
 router.get("/", (req, res) => {
   res.json("this is from userRouter");
@@ -11,7 +11,8 @@ router.get("/", (req, res) => {
 router.get("/verify", emailVerify);
 router.post("/create", createUser);
 router.post("/login", login);
-router.get("/all", getAllUsers)
+router.get("/all", getAllMusicByUser)
+
 
 // router.get('/userId/tracks', getAllTracks)
 

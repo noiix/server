@@ -67,14 +67,13 @@ const audioUpload = (req, res) => {
 //     })
 // }
 
-const getAllTracksByUser = (req, res) => {
+const getAllMyTracks = (req, res) => {
    Music.find({artist: req.session.user._id})
    .then((musics) => {
     res.json(musics)
    })
    .catch(err => res.json(err))
 }
-
 
 
 const getAllTracks = (req, res) => {
@@ -85,4 +84,4 @@ const getAllTracks = (req, res) => {
 
 
 
-module.exports = {getAllTracksByUser, getAllTracks, audioUpload}
+module.exports = {getAllTracks, audioUpload, getAllMyTracks}
