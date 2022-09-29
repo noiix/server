@@ -1,18 +1,22 @@
 const User = require("../models/userModel");
 const Music = require("../models/musicModel");
 const Verification = require("../models/verificationModel");
-const fs = require("fs");
-const path = require("path");
 const bcrypt = require("bcrypt");
 const { sendMail } = require("../models/emailModel");
 const jwt = require("jsonwebtoken");
+const unirest = require("unirest");
 
 const createUser = (req, res) => {
   const newUser = req.body;
   User.findOne({ email: newUser.email })
     .then((result) => {
       if (result) {
-        res.json({ message: "you already have an account" });
+        res.json({
+          notification: {
+            title: "you already have an account",
+            type: "warning",
+          },
+        });
       } else {
         User.create(newUser).then((createdUser) => {
           let random = Math.random().toString(36).slice(-8);
@@ -31,7 +35,12 @@ const createUser = (req, res) => {
               );
             })
             .then((result) =>
-              res.json({ msg: "please check your email to verify" })
+              res.json({
+                notification: {
+                  title: "please check your email to verify your account",
+                  type: "info",
+                },
+              })
             )
             .catch((error) => console.log(error));
         });
@@ -61,7 +70,12 @@ const emailVerify = (req, res) => {
           .catch((err) => console.log(err));
       });
     } else {
-      res.json({ msg: "verification not successful." });
+      res.json({
+        notification: {
+          title: "verification not successful.",
+          type: "success",
+        },
+      });
     }
   });
 };
@@ -78,31 +92,75 @@ const login = (req, res) => {
             });
             req.session.user = result;
             req.session.save();
-            res.json({
-              msg: "password valid",
-              token,
-              result,
+
+            const apiCall = unirest(
+              "GET",
+              "https://ip-geolocation-ipwhois-io.p.rapidapi.com/json/"
+            );
+            apiCall.headers({
+              "x-rapidapi-host": "ip-geolocation-ipwhois-io.p.rapidapi.com",
+              "x-rapidapi-key":
+                "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
+            });
+            apiCall.end(function (location) {
+              if (res.error) throw new Error(location.error);
+              console.log(location.body);
+              res.json({
+                notification: { title: "password valid", type: "info" },
+                token,
+                result,
+                location,
+              });
             });
           } else {
             res.json({
-              msg: "wrong password",
+              notification: { title: "wrong password", type: "error" },
             });
           }
         });
       } else {
         res.json({
-          msg: "please verify your account",
+          notification: {
+            title: "please verify your account",
+            type: "warning",
+          },
         });
       }
     } else {
       res.json({
-        msg: "please enter a valid email address",
+        notification: {
+          title: "please enter a valid email address",
+          type: "error",
+        },
       });
     }
   });
 };
 
-module.exports = { createUser, emailVerify, login };
+const getAllUsers = (req, res) => {
+  if (req.session.user) {
+    User.find()
+      .then((result) => res.json(result))
+      .catch((err) => res.json(err));
+  }
+};
+
+const getAllMusicByUser = (req, res) => {
+  if (req.session.user) {
+    Music.find()
+      .populate("artist")
+      .then((result) => res.json(result))
+      .catch((err) => res.json(err));
+  }
+};
+
+module.exports = {
+  createUser,
+  emailVerify,
+  login,
+  getAllUsers,
+  getAllMusicByUser,
+};
 
 // ------CODE FROM MOSTAFA-------
 

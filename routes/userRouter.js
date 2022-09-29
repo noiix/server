@@ -5,20 +5,17 @@ const {
   createUser,
   emailVerify,
   login,
+  getAllMusicByUser,
 } = require("../controllers/userController");
 
 router.get("/", (req, res) => {
   res.json("this is from userRouter");
 });
 
-// CODE FROM MOSTAFA
-// router.post("/create", createUser);
-// router.get('/userId/tracks')
-// router.post('/login', login)
-
 router.get("/verify", emailVerify);
 router.post("/create", createUser);
 router.post("/login", login);
+router.get("/all", getAllMusicByUser);
 
 // router.get('/userId/tracks', getAllTracks)
 
