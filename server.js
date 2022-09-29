@@ -10,6 +10,46 @@ const chatRouter = require("./routes/chatRouter");
 require("./connections/userDB");
 const session = require("express-session");
 
+// express-ip
+// const expressIP = require('express-ip')
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+app.use(cors());
+
+// session configuration
+
+app.use(
+  session({
+    secret: process.env.SESSIONKEY,
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 12,
+    },
+  })
+);
+
+//routes
+
+// app.use(expressIP().getIpInfoMiddleware);
+
+app.get('/', (req, res) => {
+    res.json({page:'main page', notification:{title: "Welcome to this amazing app", type: "success"}})
+})    
+app.use('/user', userRouter);
+app.use('/music', musicRouter);
+app.use('/chat', chatRouter);
+
+
+// server listen
+
+app.listen(PORT, () => {
+  console.log("listening on port " + PORT);
+});
+
+
 // audio storage
 
 // const storage = new GridFsStorage({
@@ -32,39 +72,3 @@ const session = require("express-session");
 
 
 // const upload = multer({storage})
-
-
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-app.use(cors());
-
-// session configuration
-
-app.use(
-  session({
-    secret: process.env.SESSIONKEY,
-    resave: true,
-    saveUninitialized: true,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 12,
-    },
-  })
-);
-
-//routes
-
-app.get('/', (req, res) => {
-    res.json({page:'main page', notification:{title: "Welcome to this amazing app", type: "success"}})
-})    
-app.use('/user', userRouter);
-app.use('/music', musicRouter);
-app.use('/chat', chatRouter);
-
-
-// server listen
-
-app.listen(PORT, () => {
-  console.log("listening on port " + PORT);
-});
