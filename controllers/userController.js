@@ -11,7 +11,6 @@ const {validationResult} = require('express-validator');
 
 
 const createUser = (req, res) => {
-<<<<<<< HEAD
   const newUser = req.body;
   User.findOne({ email: newUser.email })
     .then((result) => {
@@ -53,44 +52,6 @@ const createUser = (req, res) => {
       }
     })
     .catch((error) => console.log(error));
-=======
-  const errors = validationResult(req);
-  if(!errors.isEmpty()){
-    res.send(errors.array().map(err => err.msg));
-    console.log(errors.array())
-  }else {
-    const newUser = req.body;
-    User.findOne({ email: newUser.email })
-      .then((result) => {
-        if (result) {
-          res.json({ notification: {title: "you already have an account",  type: "warning"}});
-        } else {
-          User.create(newUser).then((createdUser) => {
-            let random = Math.random().toString(36).slice(-8);
-            console.log(createdUser);
-            Verification.create({
-              authId: createdUser._id,
-              secretKey: random,
-            })
-              .then(() => {
-                sendMail(
-                  createdUser.email,
-                  "verify email",
-                  `Hello, This email address: ${createdUser.email} is used to register in Mock Library. To verify your account please click on <a href="http://localhost:5001/user/verify?authId=${createdUser._id}&secretKey=${random}">this link</a>
-                          Thanks,
-                          Your nöix Team.`
-                );
-              })
-              .then((result) =>
-                res.json({notification: {title: "please check your email to verify your account", type: "info"}})
-              )
-              .catch((error) => console.log(error));
-          });
-        }
-      }).catch((error) => console.log(error));
-  } 
-  
->>>>>>> f68d724babd076eaf696575c62ef0c110f270e47
 };
 
 const emailVerify = (req, res) => {
@@ -154,14 +115,6 @@ const login = (req, res) => {
             apiCall.end(function (location) {
               if (res.error) throw new Error(location.error);
               console.log(location.body);
-<<<<<<< HEAD
-              res.json({
-                notification: { title: "password valid", type: "info" },
-                token,
-                result,
-                location,
-              });
-=======
               User.findOneAndUpdate({email: loginData.email}, {location: location.body}).then(() => {
                 res.json({
                   notification: {title: "password valid", type: "info"},
@@ -170,7 +123,6 @@ const login = (req, res) => {
                 });
               })
               
->>>>>>> f68d724babd076eaf696575c62ef0c110f270e47
             });
           } else {
             res.json({
