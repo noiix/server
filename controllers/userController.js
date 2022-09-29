@@ -96,10 +96,10 @@ const login = (req, res) => {
 
             const apiCall = unirest(
               "GET",
-              "https://ip-geolocation-ipwhois-io.p.rapidapi.com/json/"
+              "https://ip-geo-location.p.rapidapi.com/ip/check"
             );
             apiCall.headers({
-              "x-rapidapi-host": "ip-geolocation-ipwhois-io.p.rapidapi.com",
+              "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
               "x-rapidapi-key": "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44"
             });
             apiCall.end(function(location) {
