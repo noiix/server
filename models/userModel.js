@@ -5,7 +5,6 @@ const connection = mongoose.connection;
 // autoIncrement.initialize(connection);
 const bcrypt = require("bcrypt");
 
-
 // const pointSchema = new Schema({
 //   type: {
 //     type: String,
@@ -33,7 +32,6 @@ const userSchema = new Schema({
   verified: { type: Boolean, default: false },
   image: { type: String },
   createdAt: { type: Date },
-<<<<<<< HEAD
   genre: [
     {
       type: String,
@@ -80,12 +78,7 @@ const userSchema = new Schema({
     ],
   },
   liked_songs: [],
-});
-=======
-  genre: [{type: String, enum: ['pop', 'rock', 'hip hop', 'latin', 'edm', 'r&b', 'country', 'folk', 'classical', 'jazz', 'metal', 'easy listening', 'new age', 'blues', 'world', 'electronic', 'techno', 'house']}],
-  instrument: {type: String, enum: ['guitar', 'piano', 'drums', 'percussion', 'bass', 'synths', 'vocals', 'violin', 'saxophone', 'cello', 'double bass', 'clarinet', 'trumpet', 'flute', 'harp']},
-  liked_songs: [],
-  location: {}
+  location: {},
   // ipInfo: {
   //   ip: { type: String, default: "" },
   //   range: { type: Array, default: [] },
@@ -105,13 +98,10 @@ const userSchema = new Schema({
   //   },
   //   index: "2dsphere",
   // }
-})
-;
-
->>>>>>> f68d724babd076eaf696575c62ef0c110f270e47
+});
 userSchema.pre("save", async function (next) {
   try {
-    if(this.password) {  
+    if (this.password) {
       const salt = await bcrypt.genSalt(10);
       const hashPassword = await bcrypt.hash(this.password, salt);
       this.password = hashPassword;
@@ -122,16 +112,12 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-<<<<<<< HEAD
-const User = mongoose.model("User", userSchema);
-=======
 // userSchema.plugin(autoIncrement.plugin, {
 //   startAt: 1,
 //   incrementBy: 1,
 //   model: "User",
 // });
 
-const User = mongoose.model('User', userSchema)
->>>>>>> f68d724babd076eaf696575c62ef0c110f270e47
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

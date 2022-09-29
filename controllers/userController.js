@@ -5,10 +5,8 @@ const bcrypt = require("bcrypt");
 const { sendMail } = require("../models/emailModel");
 const jwt = require("jsonwebtoken");
 const unirest = require("unirest");
-const {validationResult} = require('express-validator');
+const { validationResult } = require("express-validator");
 // const {UpdateLastLocation} = require('./utils/updateLocation')
-
-
 
 const createUser = (req, res) => {
   const newUser = req.body;
@@ -87,68 +85,76 @@ const emailVerify = (req, res) => {
 
 const login = (req, res) => {
   const errors = validationResult(req);
-  if(!errors.isEmpty()){
-    res.send(errors.array().map(err => err.msg));
-    console.log(errors.array())
-  }else {
+  if (!errors.isEmpty()) {
+    res.send(errors.array().map((err) => err.msg));
+    console.log(errors.array());
+  } else {
     const loginData = req.body;
-  User.findOne({ email: loginData.email }).then((result) => {
-    if (result != null) {
-      if (result.verified === true) {
-        bcrypt.compare(loginData.password, result.password, (err, response) => {
-          if (response) {
-            const token = jwt.sign({ result }, process.env.PRIVATEKEY, {
-              algorithm: "HS256",
-            });
-            req.session.user = result;
-            req.session.save();
+    User.findOne({ email: loginData.email })
+      .then((result) => {
+        if (result != null) {
+          if (result.verified === true) {
+            bcrypt.compare(
+              loginData.password,
+              result.password,
+              (err, response) => {
+                if (response) {
+                  const token = jwt.sign({ result }, process.env.PRIVATEKEY, {
+                    algorithm: "HS256",
+                  });
+                  req.session.user = result;
+                  req.session.save();
 
-            const apiCall = unirest(
-              "GET",
-              "https://ip-geolocation-ipwhois-io.p.rapidapi.com/json/"
+                  const apiCall = unirest(
+                    "GET",
+                    "https://ip-geolocation-ipwhois-io.p.rapidapi.com/json/"
+                  );
+                  apiCall.headers({
+                    "x-rapidapi-host":
+                      "ip-geolocation-ipwhois-io.p.rapidapi.com",
+                    "x-rapidapi-key":
+                      "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
+                  });
+                  apiCall.end(function (location) {
+                    if (res.error) throw new Error(location.error);
+                    console.log(location.body);
+                    User.findOneAndUpdate(
+                      { email: loginData.email },
+                      { location: location.body }
+                    ).then(() => {
+                      res.json({
+                        notification: { title: "password valid", type: "info" },
+                        token,
+                        result,
+                      });
+                    });
+                  });
+                } else {
+                  res.json({
+                    notification: { title: "wrong password", type: "error" },
+                  });
+                }
+              }
             );
-            apiCall.headers({
-              "x-rapidapi-host": "ip-geolocation-ipwhois-io.p.rapidapi.com",
-              "x-rapidapi-key":
-                "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
-            });
-            apiCall.end(function (location) {
-              if (res.error) throw new Error(location.error);
-              console.log(location.body);
-              User.findOneAndUpdate({email: loginData.email}, {location: location.body}).then(() => {
-                res.json({
-                  notification: {title: "password valid", type: "info"},
-                  token,
-                  result
-                });
-              })
-              
-            });
           } else {
             res.json({
-              notification: { title: "wrong password", type: "error" },
+              notification: {
+                title: "please verify your account",
+                type: "warning",
+              },
             });
           }
-        });
-      } else {
-        res.json({
-          notification: {
-            title: "please verify your account",
-            type: "warning",
-          },
-        });
-      }
-    } else {
-      res.json({
-        notification: {
-          title: "please enter a valid email address",
-          type: "error",
-        },
-      });
-    }
-  }).catch(err => console.log(err))
+        } else {
+          res.json({
+            notification: {
+              title: "please enter a valid email address",
+              type: "error",
+            },
+          });
+        }
+      })
+      .catch((err) => console.log(err));
   }
-  
 };
 
 const getAllUsers = (req, res) => {
@@ -166,10 +172,38 @@ const getAllMusicByUser = (req, res) => {
       .then((result) => res.json(result))
       .catch((err) => res.json(err));
   }
-<<<<<<< HEAD
 };
-=======
-}
+
+const googleAuthController = (req, res) => {
+  let userData = req.body;
+  User.findOne({ email: userData.email })
+    .then((result) => {
+      if (result) {
+        res.json(result);
+      } else {
+        const apiCall = unirest(
+          "GET",
+          "https://ip-geo-location.p.rapidapi.com/ip/check"
+        );
+        apiCall.headers({
+          "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
+          "x-rapidapi-key":
+            "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
+        });
+        apiCall.end(function (location) {
+          if (res.error) throw new Error(location.error);
+          console.log(location.body);
+          userData.location = location.body;
+          User.create(userData)
+            .then((result) => {
+              res.json(result);
+            })
+            .catch((err) => console.log(err));
+        });
+      }
+    })
+    .catch((err) => console.log(err));
+};
 
 // const getNearByUsers = async (req, res) => {
 //   try {
@@ -187,12 +221,12 @@ const getAllMusicByUser = (req, res) => {
 //     });
 //     if(!nearByUsers || nearByUsers.length === 0) {
 //       res.status(201).json({
-//         notification: {title: "There are no users near you.", type: "info"}, 
+//         notification: {title: "There are no users near you.", type: "info"},
 //         nearByUser: []
 //       });
 //     } else {
 //       res.status(201).json({
-//         notification:{title:  "There are users near you.", type: "info"}, 
+//         notification:{title:  "There are users near you.", type: "info"},
 //         nearByUsers
 //       });
 //     }
@@ -215,17 +249,13 @@ const getAllMusicByUser = (req, res) => {
 //   }
 // };
 
-module.exports = { createUser, emailVerify, login, getAllUsers, getAllMusicByUser };
-
-
->>>>>>> f68d724babd076eaf696575c62ef0c110f270e47
-
 module.exports = {
   createUser,
   emailVerify,
   login,
   getAllUsers,
   getAllMusicByUser,
+  googleAuthController,
 };
 
 // ------CODE FROM MOSTAFA-------

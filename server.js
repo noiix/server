@@ -10,33 +10,8 @@ const chatRouter = require("./routes/ChatRouter");
 require("./connections/userDB");
 const session = require("express-session");
 
-<<<<<<< HEAD
-// audio storage
-
-// const storage = new GridFsStorage({
-//     url: process.env.DB_LINK_MUSIC,
-//     file: (req, res) => {
-//         return new Promise((resolve, reject) => {
-//         crypto.randomBytes(16, (err, buf) => {
-//             if (err) {
-//               return reject(err);
-//             }
-//             const filename = buf.toString('hex') + path.extname(file.originalname);
-//             const fileInfo = {
-//               filename: filename,
-//               bucketName: 'uploads'
-//             };
-//             resolve(fileInfo);
-//           });
-//         });
-//     }})
-
-// const upload = multer({storage})
-=======
 // express-ip
 // const expressIP = require('express-ip')
-
->>>>>>> f68d724babd076eaf696575c62ef0c110f270e47
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -58,7 +33,8 @@ app.use(
 
 //routes
 
-<<<<<<< HEAD
+// app.use(expressIP().getIpInfoMiddleware);
+
 app.get("/", (req, res) => {
   res.json({
     page: "main page",
@@ -68,24 +44,12 @@ app.get("/", (req, res) => {
 app.use("/user", userRouter);
 app.use("/music", musicRouter);
 app.use("/chat", chatRouter);
-=======
-// app.use(expressIP().getIpInfoMiddleware);
-
-app.get('/', (req, res) => {
-    res.json({page:'main page', notification:{title: "Welcome to this amazing app", type: "success"}})
-})    
-app.use('/user', userRouter);
-app.use('/music', musicRouter);
-app.use('/chat', chatRouter);
-
->>>>>>> f68d724babd076eaf696575c62ef0c110f270e47
 
 // server listen
 
 app.listen(PORT, () => {
   console.log("listening on port " + PORT);
 });
-
 
 // audio storage
 
@@ -106,6 +70,5 @@ app.listen(PORT, () => {
 //           });
 //         });
 //     }})
-
 
 // const upload = multer({storage})
