@@ -8,6 +8,6 @@ router.get('/', (req, res) => {
 })
 
 router.post('/upload', checkLoggedIn, upload)
-router.get('/all', checkLoggedIn, getAllTracksByUser)
+// router.get('/all', checkLoggedIn, getAllTracksByUser)
 
 module.exports = router;

@@ -53,4 +53,4 @@ const upload = (req, res) => {
 
 
 
-module.exports = {upload, getAllTracksByUser}
+module.exports = {upload}
