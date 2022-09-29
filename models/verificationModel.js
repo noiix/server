@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const veritficationSchema = mongoose.Schema({
+const verificationSchema = mongoose.Schema({
   authId: {
     type: String,
     unique: true,
@@ -11,4 +11,6 @@ const veritficationSchema = mongoose.Schema({
   },
 });
 
-module.exports = veritficationSchema;
+const Verification = mongoose.model("Verification", verificationSchema);
+
+module.exports = Verification;

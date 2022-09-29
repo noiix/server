@@ -1,6 +1,10 @@
-const { User, Verification } = require("../connections/userDB");
-const { sendMail } = require("../models/emailModel");
+const User = require("../models/userModel");
+const Music = require("../models/musicModel");
+const Verification = require("../models/verificationModel");
+const fs = require("fs");
+const path = require("path");
 const bcrypt = require("bcrypt");
+const { sendMail } = require("../models/emailModel");
 const jwt = require("jsonwebtoken");
 
 const createUser = (req, res) => {
@@ -99,3 +103,52 @@ const login = (req, res) => {
 };
 
 module.exports = { createUser, emailVerify, login };
+
+// ------CODE FROM MOSTAFA-------
+
+// const createUser = (req, res) => {
+//     const newUser = req.body;
+//                 User.create({...newUser, verified: true}).then(() => {
+//                     // create a folder named "email" inside the uploads folder in private case
+//                     fs.mkdir(path.join(__dirname, '../uploads/' + newUser.email), (err) => {
+//                         if(err) {
+//                             res.json(err)
+//                         }
+//                         else {
+//                             res.json('done')
+//                         }
+//                     })
+
+//                     // in public case: store the file inside the folder "music"
+
+//                 })
+
+// const login = (req, res) => {
+//     let user = req.body;
+//     User.findOne({email: user.email})
+//         .then(result => {
+//             if(result !== null){
+//                 console.log(result)
+//                 if(result.verified === true) {
+//                     bcrypt.compare(user.password, result.password, (err, data) => {
+//                         if(err) {
+//                             res.json(err)
+//                         }
+//                         else{
+//                             req.session.user = result;
+//                             res.json(result)
+//                         }
+//                     })
+//                 }
+//                 else {
+//                     res.json('user not verified')
+//                 }
+//             }else {
+//                 res.json('error, user doesn"t exist')
+//             }
+//         })
+// }
+
+// module.exports = {createUser, login}
+
+//----------------------------------------------------------------
