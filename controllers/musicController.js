@@ -84,8 +84,4 @@ const getAllTracks = (req, res) => {
 
 
 
-<<<<<<< HEAD
-module.exports = {upload}
-=======
 module.exports = {getAllTracks, audioUpload, getAllMyTracks}
->>>>>>> 1edf265b9325926707c4df8bed22932c229be5ac
