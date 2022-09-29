@@ -23,12 +23,53 @@ const userSchema = new Schema({
   verified: { type: Boolean, default: false },
   image: { type: String },
   createdAt: { type: Date },
-  genre: [{type: String, enum: ['pop', 'rock', 'hip hop', 'latin', 'edm', 'r&b', 'country', 'folk', 'classical', 'jazz', 'metal', 'easy listening', 'new age', 'blues', 'world', 'electronic', 'techno', 'house']}],
-  instrument: {type: String, enum: ['guitar', 'piano', 'drums', 'percussion', 'bass', 'synths', 'vocals', 'violin', 'saxophone', 'cello', 'double bass', 'clarinet', 'trumpet', 'flute', 'harp']},
-  liked_songs: []
-})
-;
-
+  genre: [
+    {
+      type: String,
+      enum: [
+        "pop",
+        "rock",
+        "hip hop",
+        "latin",
+        "edm",
+        "r&b",
+        "country",
+        "folk",
+        "classical",
+        "jazz",
+        "metal",
+        "easy listening",
+        "new age",
+        "blues",
+        "world",
+        "electronic",
+        "techno",
+        "house",
+      ],
+    },
+  ],
+  instrument: {
+    type: String,
+    enum: [
+      "guitar",
+      "piano",
+      "drums",
+      "percussion",
+      "bass",
+      "synths",
+      "vocals",
+      "violin",
+      "saxophone",
+      "cello",
+      "double bass",
+      "clarinet",
+      "trumpet",
+      "flute",
+      "harp",
+    ],
+  },
+  liked_songs: [],
+});
 userSchema.pre("save", async function (next) {
   try {
     const salt = await bcrypt.genSalt(10);
@@ -40,6 +81,6 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-const User = mongoose.model('User', userSchema)
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

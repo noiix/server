@@ -20,19 +20,20 @@ const createUser = (req, res) => {
       } else {
         User.create(newUser).then((createdUser) => {
           let random = Math.random().toString(36).slice(-8);
-          console.log(createdUser);
+          console.log(createdUser.verified);
           Verification.create({
             authId: createdUser._id,
             secretKey: random,
           })
             .then(() => {
-              sendMail(
-                createdUser.email,
-                "verify email",
-                `Hello, This email address: ${createdUser.email} is used to register in Mock Library. To verify your account please click on <a href="http://localhost:5001/user/verify?authId=${createdUser._id}&secretKey=${random}">this link</a>
+              !createdUser.verified &&
+                sendMail(
+                  createdUser.email,
+                  "verify email",
+                  `Hello, This email address: ${createdUser.email} is used to register in Mock Library. To verify your account please click on <a href="http://localhost:5001/user/verify?authId=${createdUser._id}&secretKey=${random}">this link</a>
                         Thanks,
                         Your nöix Team.`
-              );
+                );
             })
             .then((result) =>
               res.json({
