@@ -6,7 +6,7 @@ const PORT = process.env.PORT;
 const mongoose = require("mongoose");
 const userRouter = require("./routes/userRouter");
 const musicRouter = require("./routes/musicRouter");
-const chatRouter = require("./routes/ChatRouter");
+const chatRouter = require("./routes/chatRouter");
 require("./connections/userDB");
 const session = require("express-session");
 
@@ -32,7 +32,6 @@ const session = require("express-session");
 
 
 // const upload = multer({storage})
-
 
 
 

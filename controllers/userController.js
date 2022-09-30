@@ -12,7 +12,7 @@ const createUser = (req, res) => {
   User.findOne({ email: newUser.email })
     .then((result) => {
       if (result) {
-        res.json({ notification: {title: "you already have an account",  type: "warning"}});
+        res.json({ notification: {title: "Hey, you already have an account",  type: "info"}});
       } else {
         User.create(newUser).then((createdUser) => {
           let random = Math.random().toString(36).slice(-8);
@@ -31,7 +31,7 @@ const createUser = (req, res) => {
               );
             })
             .then((result) =>
-              res.json({notification: {title: "please check your email to verify your account", type: "info"}})
+              res.json({notification: {title: "Please, check your email to verify your account", type: "info"}})
             )
             .catch((error) => console.log(error));
         });
@@ -61,7 +61,7 @@ const emailVerify = (req, res) => {
           .catch((err) => console.log(err));
       });
     } else {
-      res.json({notification: {title: "verification not successful.", type: "success"} });
+      res.json({notification: {title: "verification not successful.", type: "error"} });
     }
   });
 };
@@ -132,7 +132,16 @@ const getAllMusicByUser = (req, res) => {
   }
 }
 
-module.exports = { createUser, emailVerify, login, getAllUsers, getAllMusicByUser };
+const logout = (req, res) => {
+  req.session.destroy()
+  res.json({
+    notification: {
+      title: "You successfully logged out.", type: "success"
+    }
+  })
+}
+
+module.exports = { createUser, emailVerify, login, logout, getAllUsers, getAllMusicByUser };
 
 
 
