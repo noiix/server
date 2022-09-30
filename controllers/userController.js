@@ -12,42 +12,36 @@ const {validationResult} = require('express-validator');
 
 
 const createUser = (req, res) => {
-  const errors = validationResult(req);
-  if(!errors.isEmpty()){
-    res.send(errors.array().map(err => err.msg));
-    console.log(errors.array())
-  }else {
-    const newUser = req.body;
-    User.findOne({ email: newUser.email })
-      .then((result) => {
-        if (result) {
-          res.json({ notification: {title: "you already have an account",  type: "warning"}});
-        } else {
-          User.create(newUser).then((createdUser) => {
-            let random = Math.random().toString(36).slice(-8);
-            console.log(createdUser);
-            Verification.create({
-              authId: createdUser._id,
-              secretKey: random,
+  const newUser = req.body;
+  User.findOne({ email: newUser.email })
+    .then((result) => {
+      if (result) {
+        res.json({ notification: {title: "Hey, you already have an account",  type: "info"}});
+      } else {
+        User.create(newUser).then((createdUser) => {
+          let random = Math.random().toString(36).slice(-8);
+          console.log(createdUser);
+          Verification.create({
+            authId: createdUser._id,
+            secretKey: random,
+          })
+            .then(() => {
+              sendMail(
+                createdUser.email,
+                "verify email",
+                `Hello, This email address: ${createdUser.email} is used to register in Mock Library. To verify your account please click on <a href="http://localhost:5001/user/verify?authId=${createdUser._id}&secretKey=${random}">this link</a>
+                        Thanks,
+                        Your nöix Team.`
+              );
             })
-              .then(() => {
-                sendMail(
-                  createdUser.email,
-                  "verify email",
-                  `Hello, This email address: ${createdUser.email} is used to register in Mock Library. To verify your account please click on <a href="http://localhost:5001/user/verify?authId=${createdUser._id}&secretKey=${random}">this link</a>
-                          Thanks,
-                          Your nöix Team.`
-                );
-              })
-              .then((result) =>
-                res.json({notification: {title: "please check your email to verify your account", type: "info"}})
-              )
-              .catch((error) => console.log(error));
-          });
-        }
-      }).catch((error) => console.log(error));
-  } 
-  
+            .then((result) =>
+              res.json({notification: {title: "Please, check your email to verify your account", type: "info"}})
+            )
+            .catch((error) => console.log(error));
+        });
+      }
+    })
+    .catch((error) => console.log(error));
 };
 
 const emailVerify = (req, res) => {
@@ -71,7 +65,7 @@ const emailVerify = (req, res) => {
           .catch((err) => console.log(err));
       });
     } else {
-      res.json({notification: {title: "verification not successful.", type: "success"} });
+      res.json({notification: {title: "verification not successful.", type: "error"} });
     }
   });
 };
@@ -195,7 +189,16 @@ const getAllMusicByUser = (req, res) => {
 //   }
 // };
 
-module.exports = { createUser, emailVerify, login, getAllUsers, getAllMusicByUser };
+const logout = (req, res) => {
+  req.session.destroy()
+  res.json({
+    notification: {
+      title: "You successfully logged out.", type: "success"
+    }
+  })
+}
+
+module.exports = { createUser, emailVerify, login, logout, getAllUsers, getAllMusicByUser };
 
 
 

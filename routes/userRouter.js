@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require('../models/userModel');
-const {createUser, emailVerify, login, getAllMusicByUser} = require('../controllers/userController');
+const {createUser, emailVerify, login, getAllMusicByUser, logout} = require('../controllers/userController');
 const {body} = require('express-validator')
 
 router.get("/", (req, res) => {
@@ -28,6 +28,8 @@ createUser);
 router.get("/verify", emailVerify);
 router.post("/login", [body('email').isEmail().withMessage('Please provide your email address to login.'), body('password').isLength({min: 6}).withMessage('Password must be at least 6 characters.')],
 login);
+router.post("/create", createUser);
+router.get("/logout", logout)
 router.get("/all", getAllMusicByUser)
 
 

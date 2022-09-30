@@ -6,13 +6,12 @@ const PORT = process.env.PORT;
 const mongoose = require("mongoose");
 const userRouter = require("./routes/userRouter");
 const musicRouter = require("./routes/musicRouter");
-const chatRouter = require("./routes/ChatRouter");
+const chatRouter = require("./routes/chatRouter");
 require("./connections/userDB");
 const session = require("express-session");
 
 // express-ip
 // const expressIP = require('express-ip')
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
