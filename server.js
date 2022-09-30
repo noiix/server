@@ -10,9 +10,6 @@ const chatRouter = require("./routes/chatRouter");
 require("./connections/userDB");
 const session = require("express-session");
 
-// express-ip
-// const expressIP = require('express-ip')
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -33,7 +30,7 @@ app.use(
 
 //routes
 
-// app.use(expressIP().getIpInfoMiddleware);
+
 
 app.get('/', (req, res) => {
     res.json({page:'main page', notification:{title: "Welcome to this amazing app", type: "success"}})
@@ -42,6 +39,16 @@ app.use('/user', userRouter);
 app.use('/music', musicRouter);
 app.use('/chat', chatRouter);
 
+
+app.get("/", (req, res) => {
+  res.json({
+    page: "main page",
+    notification: { title: "Welcome to this amazing app", type: "success" },
+  });
+});
+app.use("/user", userRouter);
+app.use("/music", musicRouter);
+app.use("/chat", chatRouter);
 
 // server listen
 
@@ -72,3 +79,4 @@ app.listen(PORT, () => {
 
 
 // const upload = multer({storage})
+

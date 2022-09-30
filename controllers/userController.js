@@ -1,14 +1,12 @@
-const User = require('../models/userModel')
-const Music = require('../models/musicModel')
-const Verification = require('../models/verificationModel')
-const bcrypt = require('bcrypt');
-const {sendMail} = require('../models/emailModel')
-const jwt = require('jsonwebtoken')
+const User = require("../models/userModel");
+const Music = require("../models/musicModel");
+const Verification = require("../models/verificationModel");
+const bcrypt = require("bcrypt");
+const { sendMail } = require("../models/emailModel");
+const jwt = require("jsonwebtoken");
 const unirest = require("unirest");
 const {validationResult} = require('express-validator');
 // const {UpdateLastLocation} = require('./utils/updateLocation')
-
-
 
 
 const createUser = (req, res) => {
@@ -43,6 +41,7 @@ const createUser = (req, res) => {
     })
     .catch((error) => console.log(error));
 };
+
 
 const emailVerify = (req, res) => {
   console.log(req.query);
@@ -130,20 +129,22 @@ const login = (req, res) => {
 };
 
 const getAllUsers = (req, res) => {
-  if(req.session.user){
+  if (req.session.user) {
     User.find()
-    .then(result => res.json(result))
-    .catch(err => res.json(err))
+      .then((result) => res.json(result))
+      .catch((err) => res.json(err));
   }
-}
+};
 
 const getAllMusicByUser = (req, res) => {
-  if(req.session.user) {
-    Music.find().populate('artist')
-    .then(result => res.json(result))
-    .catch(err => res.json(err))
+  if (req.session.user) {
+    Music.find()
+      .populate("artist")
+      .then((result) => res.json(result))
+      .catch((err) => res.json(err));
   }
-}
+};
+
 
 // const getNearByUsers = async (req, res) => {
 //   try {
@@ -189,6 +190,38 @@ const getAllMusicByUser = (req, res) => {
 //   }
 // };
 
+
+const googleAuthController = (req, res) => {
+  let userData = req.body;
+  User.findOne({ email: userData.email })
+    .then((result) => {
+      if (result) {
+        res.json(result);
+      } else {
+        const apiCall = unirest(
+          "GET",
+          "https://ip-geo-location.p.rapidapi.com/ip/check"
+        );
+        apiCall.headers({
+          "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
+          "x-rapidapi-key":
+            "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
+        });
+        apiCall.end(function (location) {
+          if (res.error) throw new Error(location.error);
+          console.log(location.body);
+          userData.location = location.body;
+          User.create(userData)
+            .then((result) => {
+              res.json(result);
+            })
+            .catch((err) => console.log(err));
+        });
+      }
+    })
+    .catch((err) => console.log(err));
+};
+
 const logout = (req, res) => {
   req.session.destroy()
   res.json({
@@ -198,60 +231,59 @@ const logout = (req, res) => {
   })
 }
 
-module.exports = { createUser, emailVerify, login, logout, getAllUsers, getAllMusicByUser };
+module.exports = {
+  createUser,
+  emailVerify,
+  login,
+  getAllUsers,
+  getAllMusicByUser,
+  googleAuthController,
+  logout
+};
 
-
-
-
-// ------CODE FROM MOSTAFA-------
-
-
-// const createUser = (req, res) => {
-//     const newUser = req.body;
-//                 User.create({...newUser, verified: true}).then(() => {
-//                     // create a folder named "email" inside the uploads folder in private case
-//                     fs.mkdir(path.join(__dirname, '../uploads/' + newUser.email), (err) => {
-//                         if(err) {
-//                             res.json(err)
-//                         }
-//                         else {
-//                             res.json('done')
-//                         }
-//                     })
-                
-
-//                     // in public case: store the file inside the folder "music"
-                    
-//                 })
-
-// const login = (req, res) => {
-//     let user = req.body;
-//     User.findOne({email: user.email})
-//         .then(result => {
-//             if(result !== null){
-//                 console.log(result)
-//                 if(result.verified === true) {
-//                     bcrypt.compare(user.password, result.password, (err, data) => {
-//                         if(err) {
-//                             res.json(err)
-//                         } 
-//                         else{
-//                             req.session.user = result;
-//                             res.json(result)
-//                         }
-//                     })
-//                 }
-//                 else {
-//                     res.json('user not verified')
-//                 }
-//             }else {
-//                 res.json('error, user doesn"t exist')
-//             }
-//         })
+// const getNearByUsers = async (req, res) => {
+//   try {
+//     const {ipInfo} = req;
+//     let nearByUsers = await User.find({
+//       lastLocation: {
+//         $nearSphere: {
+//           $geometry: {
+//             type: "Point",
+//             coordinates: ipInfo.ll
+//           },
+//           $maxDistance: 10000
+//         }
+//       }
+//     });
+//     if(!nearByUsers || nearByUsers.length === 0) {
+//       res.status(201).json({
+//         notification: {title: "There are no users near you.", type: "info"},
+//         nearByUser: []
+//       });
+//     } else {
+//       res.status(201).json({
+//         notification:{title:  "There are users near you.", type: "info"},
+//         nearByUsers
+//       });
+//     }
+//   } catch(err) {
+//     res.status(400).json({
+//       notification: {title: `Error by finding nearby users. ${err.message}`}, type: "error"}
+//     )
+//   };
 // }
 
-// module.exports = {createUser, login}
+// const FetchAUserController = async (req, res) => {
+//   try {
+//     console.log(req.decoded);
+//     const { ipInfo } = req;
+//     let id = req.decoded._id;
+//     let updatedUser = await UpdateLastLocation(ipInfo, id);
+//     handleResSuccess(res, "user fetched", updatedUser, 201);
+//   } catch (err) {
+//     handleResError(res, err, 400);
+//   }
+// };
 
 
 
-//----------------------------------------------------------------
