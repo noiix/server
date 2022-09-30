@@ -21,7 +21,7 @@ const createUser = (req, res) => {
     User.findOne({ email: newUser.email })
       .then((result) => {
         if (result) {
-          res.json({ notification: {title: "you already have an account",  type: "warning"}});
+          res.json({ notification: {title: "Good news: you already have an account.",  type: "warning"}});
         } else {
           User.create(newUser).then((createdUser) => {
             let random = Math.random().toString(36).slice(-8);
@@ -40,7 +40,7 @@ const createUser = (req, res) => {
                 );
               })
               .then((result) =>
-                res.json({notification: {title: "please check your email to verify your account", type: "info"}})
+                res.json({notification: {title: "Please, check your email to verify your account.", type: "info"}})
               )
               .catch((error) => console.log(error));
           });
@@ -71,7 +71,7 @@ const emailVerify = (req, res) => {
           .catch((err) => console.log(err));
       });
     } else {
-      res.json({notification: {title: "verification not successful.", type: "error"} });
+      res.json({notification: {title: "The verification was not successful.", type: "error"} });
     }
   });
 };
@@ -107,7 +107,7 @@ const login = (req, res) => {
               console.log(location.body);
               User.findOneAndUpdate({email: loginData.email}, {location: location.body}).then(() => {
                 res.json({
-                  notification: {title: "password valid", type: "info"},
+                  notification: {title: "You successfully logged in.", type: "success"},
                   token,
                   result
                 });
@@ -116,18 +116,18 @@ const login = (req, res) => {
             });
           } else {
             res.json({notification:
-              {title: "wrong password", type: "error"}
+              {title: "Email and password do not match.", type: "error"}
             });
           }
         });
       } else {
         res.json({notification:
-         { title: "please verify your account", type: "warning"}
+         { title: "Please, check your emails and verify your account.", type: "info"}
         });
       }
     } else {
       res.json({notification:
-        {title: "please enter a valid email address", type: "error"}
+        {title: "Please, enter a valid email address", type: "warning"}
       });
     }
   }).catch(err => console.log(err))
