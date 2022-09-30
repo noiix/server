@@ -13,16 +13,12 @@ const createUser = (req, res) => {
   User.findOne({ email: newUser.email })
     .then((result) => {
       if (result) {
-<<<<<<< HEAD
         res.json({
           notification: {
-            title: "you already have an account",
-            type: "warning",
+            title: "Hey, you already have an account",
+            type: "info",
           },
         });
-=======
-        res.json({ notification: {title: "Hey, you already have an account",  type: "info"}});
->>>>>>> 8d0bdc07c40e011a763e8d30d770773b9e86a1db
       } else {
         User.create(newUser).then((createdUser) => {
           let random = Math.random().toString(36).slice(-8);
@@ -42,7 +38,12 @@ const createUser = (req, res) => {
                 );
             })
             .then((result) =>
-              res.json({notification: {title: "Please, check your email to verify your account", type: "info"}})
+              res.json({
+                notification: {
+                  title: "Please, check your email to verify your account",
+                  type: "info",
+                },
+              })
             )
             .catch((error) => console.log(error));
         });
@@ -72,7 +73,9 @@ const emailVerify = (req, res) => {
           .catch((err) => console.log(err));
       });
     } else {
-      res.json({notification: {title: "verification not successful.", type: "error"} });
+      res.json({
+        notification: { title: "verification not successful.", type: "error" },
+      });
     }
   });
 };
@@ -119,7 +122,7 @@ const login = (req, res) => {
                       res.json({
                         notification: { title: "password valid", type: "info" },
                         token,
-                        result
+                        result,
                       });
                     });
                   });
@@ -199,114 +202,21 @@ const googleAuthController = (req, res) => {
     .catch((err) => console.log(err));
 };
 const logout = (req, res) => {
-  req.session.destroy()
+  req.session.destroy();
   res.json({
     notification: {
-      title: "You successfully logged out.", type: "success"
-    }
-  })
-}
-
-module.exports = { createUser, emailVerify, login, logout, getAllUsers, getAllMusicByUser };
-
-// const getNearByUsers = async (req, res) => {
-//   try {
-//     const {ipInfo} = req;
-//     let nearByUsers = await User.find({
-//       lastLocation: {
-//         $nearSphere: {
-//           $geometry: {
-//             type: "Point",
-//             coordinates: ipInfo.ll
-//           },
-//           $maxDistance: 10000
-//         }
-//       }
-//     });
-//     if(!nearByUsers || nearByUsers.length === 0) {
-//       res.status(201).json({
-//         notification: {title: "There are no users near you.", type: "info"},
-//         nearByUser: []
-//       });
-//     } else {
-//       res.status(201).json({
-//         notification:{title:  "There are users near you.", type: "info"},
-//         nearByUsers
-//       });
-//     }
-//   } catch(err) {
-//     res.status(400).json({
-//       notification: {title: `Error by finding nearby users. ${err.message}`}, type: "error"}
-//     )
-//   };
-// }
-
-// const FetchAUserController = async (req, res) => {
-//   try {
-//     console.log(req.decoded);
-//     const { ipInfo } = req;
-//     let id = req.decoded._id;
-//     let updatedUser = await UpdateLastLocation(ipInfo, id);
-//     handleResSuccess(res, "user fetched", updatedUser, 201);
-//   } catch (err) {
-//     handleResError(res, err, 400);
-//   }
-// };
+      title: "You successfully logged out.",
+      type: "success",
+    },
+  });
+};
 
 module.exports = {
   createUser,
   emailVerify,
   login,
+  logout,
   getAllUsers,
   getAllMusicByUser,
   googleAuthController,
 };
-
-// ------CODE FROM MOSTAFA-------
-
-// const createUser = (req, res) => {
-//     const newUser = req.body;
-//                 User.create({...newUser, verified: true}).then(() => {
-//                     // create a folder named "email" inside the uploads folder in private case
-//                     fs.mkdir(path.join(__dirname, '../uploads/' + newUser.email), (err) => {
-//                         if(err) {
-//                             res.json(err)
-//                         }
-//                         else {
-//                             res.json('done')
-//                         }
-//                     })
-
-//                     // in public case: store the file inside the folder "music"
-
-//                 })
-
-// const login = (req, res) => {
-//     let user = req.body;
-//     User.findOne({email: user.email})
-//         .then(result => {
-//             if(result !== null){
-//                 console.log(result)
-//                 if(result.verified === true) {
-//                     bcrypt.compare(user.password, result.password, (err, data) => {
-//                         if(err) {
-//                             res.json(err)
-//                         }
-//                         else{
-//                             req.session.user = result;
-//                             res.json(result)
-//                         }
-//                     })
-//                 }
-//                 else {
-//                     res.json('user not verified')
-//                 }
-//             }else {
-//                 res.json('error, user doesn"t exist')
-//             }
-//         })
-// }
-
-// module.exports = {createUser, login}
-
-//----------------------------------------------------------------
