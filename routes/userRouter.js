@@ -7,6 +7,7 @@ const {
   login,
   getAllMusicByUser,
   googleAuthController,
+  logout,
 } = require("../controllers/userController");
 const { body } = require("express-validator");
 
@@ -57,6 +58,9 @@ router.post(
   ],
   login
 );
+
+router.get("/logout", logout);
+router.get("/all", getAllMusicByUser);
 
 router.post("/googleauth", googleAuthController);
 
