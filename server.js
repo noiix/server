@@ -35,20 +35,21 @@ app.use(
 
 // app.use(expressIP().getIpInfoMiddleware);
 
-app.get('/', (req, res) => {
-    res.json({page:'main page', notification:{title: "Welcome to this amazing app", type: "success"}})
-})    
-app.use('/user', userRouter);
-app.use('/music', musicRouter);
-app.use('/chat', chatRouter);
-
+app.get("/", (req, res) => {
+  res.json({
+    page: "main page",
+    notification: { title: "Welcome to this amazing app", type: "success" },
+  });
+});
+app.use("/user", userRouter);
+app.use("/music", musicRouter);
+app.use("/chat", chatRouter);
 
 // server listen
 
 app.listen(PORT, () => {
   console.log("listening on port " + PORT);
 });
-
 
 // audio storage
 
@@ -69,6 +70,5 @@ app.listen(PORT, () => {
 //           });
 //         });
 //     }})
-
 
 // const upload = multer({storage})
