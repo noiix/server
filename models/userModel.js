@@ -98,7 +98,10 @@ const userSchema = new Schema({
   //   },
   //   index: "2dsphere",
   // }
-});
+})
+;
+
+
 userSchema.pre("save", async function (next) {
   try {
     if (this.password) {
@@ -118,6 +121,8 @@ userSchema.pre("save", async function (next) {
 //   model: "User",
 // });
 
+
 const User = mongoose.model("User", userSchema);
+
 
 module.exports = User;
