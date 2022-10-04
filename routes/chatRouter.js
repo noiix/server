@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const {connect} = require('../controllers/chatController')
 
 router.get('/', (req, res) => {
-    res.json('this is from chatRouter')
+   connect
 })
 
 module.exports = router;

@@ -1,22 +1,24 @@
-const User = require('../models/userModel')
-const Music = require('../models/musicModel')
-const Verification = require('../models/verificationModel')
-const bcrypt = require('bcrypt');
-const {sendMail} = require('../models/emailModel')
-const jwt = require('jsonwebtoken')
+const User = require("../models/userModel");
+const Music = require("../models/musicModel");
+const Verification = require("../models/verificationModel");
+const bcrypt = require("bcrypt");
+const { sendMail } = require("../models/emailModel");
+const jwt = require("jsonwebtoken");
 const unirest = require("unirest");
-const {validationResult} = require('express-validator');
+const { validationResult } = require("express-validator");
 // const {UpdateLastLocation} = require('./utils/updateLocation')
-
-
-
 
 const createUser = (req, res) => {
   const newUser = req.body;
   User.findOne({ email: newUser.email })
     .then((result) => {
       if (result) {
-        res.json({ notification: {title: "Hey, you already have an account",  type: "info"}});
+        res.json({
+          notification: {
+            title: "Hey, you already have an account",
+            type: "info",
+          },
+        });
       } else {
         User.create(newUser).then((createdUser) => {
           let random = Math.random().toString(36).slice(-8);
@@ -35,7 +37,12 @@ const createUser = (req, res) => {
               );
             })
             .then((result) =>
-              res.json({notification: {title: "Please, check your email to verify your account", type: "info"}})
+              res.json({
+                notification: {
+                  title: "Please, check your email to verify your account.",
+                  type: "info",
+                },
+              })
             )
             .catch((error) => console.log(error));
         });
@@ -65,7 +72,9 @@ const emailVerify = (req, res) => {
           .catch((err) => console.log(err));
       });
     } else {
-      res.json({notification: {title: "verification not successful.", type: "error"} });
+      res.json({
+        notification: { title: "The verification was not successful.", type: "error" },
+      });
     }
   });
 };
@@ -101,7 +110,7 @@ const login = (req, res) => {
               console.log(location.body);
               User.findOneAndUpdate({email: loginData.email}, {location: location.body}).then(() => {
                 res.json({
-                  notification: {title: "password valid", type: "info"},
+                  notification: {title: "You successfully logged in.", type: "success"},
                   token,
                   result
                 });
@@ -110,18 +119,18 @@ const login = (req, res) => {
             });
           } else {
             res.json({notification:
-              {title: "wrong password", type: "error"}
+              {title: "Password and email do not match.", type: "error"}
             });
           }
         });
       } else {
         res.json({notification:
-         { title: "please verify your account", type: "warning"}
+         { title: "Please, verify your account.", type: "info"}
         });
       }
     } else {
       res.json({notification:
-        {title: "please enter a valid email address", type: "error"}
+        {title: "Please, enter a valid email address.", type: "error"}
       });
     }
   }).catch(err => console.log(err))
@@ -130,20 +139,21 @@ const login = (req, res) => {
 };
 
 const getAllUsers = (req, res) => {
-  if(req.session.user){
+  if (req.session.user) {
     User.find()
-    .then(result => res.json(result))
-    .catch(err => res.json(err))
+      .then((result) => res.json(result))
+      .catch((err) => res.json(err));
   }
-}
+};
 
 const getAllMusicByUser = (req, res) => {
-  if(req.session.user) {
-    Music.find().populate('artist')
-    .then(result => res.json(result))
-    .catch(err => res.json(err))
+  if (req.session.user) {
+    Music.find()
+      .populate("artist")
+      .then((result) => res.json(result))
+      .catch((err) => res.json(err));
   }
-}
+};
 
 // const getNearByUsers = async (req, res) => {
 //   try {
@@ -161,12 +171,12 @@ const getAllMusicByUser = (req, res) => {
 //     });
 //     if(!nearByUsers || nearByUsers.length === 0) {
 //       res.status(201).json({
-//         notification: {title: "There are no users near you.", type: "info"}, 
+//         notification: {title: "There are no users near you.", type: "info"},
 //         nearByUser: []
 //       });
 //     } else {
 //       res.status(201).json({
-//         notification:{title:  "There are users near you.", type: "info"}, 
+//         notification:{title:  "There are users near you.", type: "info"},
 //         nearByUsers
 //       });
 //     }
@@ -188,15 +198,6 @@ const getAllMusicByUser = (req, res) => {
 //     handleResError(res, err, 400);
 //   }
 // };
-
-const logout = (req, res) => {
-  req.session.destroy()
-  res.json({
-    notification: {
-      title: "You successfully logged out.", type: "success"
-    }
-  })
-};
 
 const googleAuthController = (req, res) => {
   let userData = req.body;
@@ -228,61 +229,44 @@ const googleAuthController = (req, res) => {
     })
     .catch((err) => console.log(err));
 };
+  
+const logout = (req, res) => {
+  req.session.destroy();
+  res.json({
+    notification: {
+      title: "You successfully logged out.",
+      type: "success",
+    },
+  });
+};
 
-module.exports = { createUser, emailVerify, login, logout, getAllUsers, getAllMusicByUser, googleAuthController };
+const profileUpdate = (req, res) => {
+  const id = req.body[0]._id;
+  const update = req.body[1];
+  // console.log();
 
+  User.updateOne(
+    {
+      _id: id,
+    },
+    {
+      $set: update,
+    }
+  )
+    .then((result) => {
+      res.json(result);
+      console.log(result);
+    })
+    .catch((err) => console.log(err));
+};
 
-
-
-// ------CODE FROM MOSTAFA-------
-
-
-// const createUser = (req, res) => {
-//     const newUser = req.body;
-//                 User.create({...newUser, verified: true}).then(() => {
-//                     // create a folder named "email" inside the uploads folder in private case
-//                     fs.mkdir(path.join(__dirname, '../uploads/' + newUser.email), (err) => {
-//                         if(err) {
-//                             res.json(err)
-//                         }
-//                         else {
-//                             res.json('done')
-//                         }
-//                     })
-                
-
-//                     // in public case: store the file inside the folder "music"
-                    
-//                 })
-
-// const login = (req, res) => {
-//     let user = req.body;
-//     User.findOne({email: user.email})
-//         .then(result => {
-//             if(result !== null){
-//                 console.log(result)
-//                 if(result.verified === true) {
-//                     bcrypt.compare(user.password, result.password, (err, data) => {
-//                         if(err) {
-//                             res.json(err)
-//                         } 
-//                         else{
-//                             req.session.user = result;
-//                             res.json(result)
-//                         }
-//                     })
-//                 }
-//                 else {
-//                     res.json('user not verified')
-//                 }
-//             }else {
-//                 res.json('error, user doesn"t exist')
-//             }
-//         })
-// }
-
-// module.exports = {createUser, login}
-
-
-
-//----------------------------------------------------------------
+module.exports = {
+  createUser,
+  emailVerify,
+  login,
+  logout,
+  getAllUsers,
+  getAllMusicByUser,
+  googleAuthController,
+  profileUpdate,
+};
