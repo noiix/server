@@ -31,15 +31,15 @@ app.use(
 
 //routes
 
-
-
-app.get('/', (req, res) => {
-    res.json({page:'main page', notification:{title: "Welcome to this amazing app", type: "success"}})
-})    
-app.use('/user', userRouter);
-app.use('/music', musicRouter);
-app.use('/chat', chatRouter);
-
+app.get("/", (req, res) => {
+  res.json({
+    page: "main page",
+    notification: { title: "Welcome to this amazing app", type: "success" },
+  });
+});
+app.use("/user", userRouter);
+app.use("/music", musicRouter);
+app.use("/chat", chatRouter);
 
 app.get("/", (req, res) => {
   res.json({
@@ -56,6 +56,7 @@ app.use("/chat", chatRouter);
 const server = app.listen(PORT, () => {
   console.log("listening on port " + PORT);
 });
+<<<<<<< HEAD
 
 module.exports = {server}
 // audio storage
@@ -81,3 +82,5 @@ module.exports = {server}
 
 // const upload = multer({storage})
 
+=======
+>>>>>>> f1fa8e507f45e24eafa4c6fd41a73e601713f442
