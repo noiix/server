@@ -8,16 +8,13 @@ const {
   getAllMusicByUser,
   googleAuthController,
   logout,
+  profileUpdate,
 } = require("../controllers/userController");
 const { body } = require("express-validator");
-
 
 router.get("/", (req, res) => {
   res.json("this is from userRouter");
 });
-
-
-
 
 // create account route
 router.post(
@@ -68,6 +65,7 @@ router.get("/all", getAllMusicByUser);
 
 router.post("/googleauth", googleAuthController);
 
+router.post("/profileupdate", profileUpdate);
 
 router.get("/all", getAllMusicByUser);
 

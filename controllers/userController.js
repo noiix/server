@@ -254,6 +254,26 @@ const logout = (req, res) => {
   });
 };
 
+const profileUpdate = (req, res) => {
+  const id = req.body[0]._id;
+  const update = req.body[1];
+  // console.log();
+
+  User.updateOne(
+    {
+      _id: id,
+    },
+    {
+      $set: update,
+    }
+  )
+    .then((result) => {
+      res.json(result);
+      console.log(result);
+    })
+    .catch((err) => console.log(err));
+};
+
 module.exports = {
   createUser,
   emailVerify,
@@ -262,4 +282,5 @@ module.exports = {
   getAllUsers,
   getAllMusicByUser,
   googleAuthController,
+  profileUpdate,
 };
