@@ -1,5 +1,5 @@
 const server = require('../server')
-const io = require('socket.io')(server)
+// const io = require('socket.io')(server)
 
 const connect = () => {io.on('connection', socket => {
     console.log('User connected')

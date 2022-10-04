@@ -9,34 +9,41 @@ const { validationResult } = require("express-validator");
 // const {UpdateLastLocation} = require('./utils/updateLocation')
 
 const createUser = (req, res) => {
-  const newUser = req.body;
-  User.findOne({ email: newUser.email })
-    .then((result) => {
-      if (result) {
-        res.json({
-          notification: {
-            title: "Hey, you already have an account",
-            type: "info",
-          },
-        });
-      } else {
-        User.create(newUser).then((createdUser) => {
-          let random = Math.random().toString(36).slice(-8);
-          console.log(createdUser);
-          Verification.create({
-            authId: createdUser._id,
-            secretKey: random,
-          })
-            .then(() => {
-              sendMail(
-                createdUser.email,
-                "verify email",
-                `Hello, This email address: ${createdUser.email} is used to register in Mock Library. To verify your account please click on <a href="http://localhost:5001/user/verify?authId=${createdUser._id}&secretKey=${random}">this link</a>
-                        Thanks,
-                        Your nöix Team.`
-              );
+  const errors = validationResult(req);
+  if(!errors.isEmpty()){
+    res.send(errors.array().map(err => err.msg));
+    console.log(errors.array())
+  }
+  else {
+    const newUser = req.body;
+    User.findOne({ email: newUser.email })
+      .then((result) => {
+        if (result) {
+          res.json({
+            notification: {
+              title: "Hey, you already have an account",
+              type: "info",
+            },
+          });
+        } else {
+          User.create(newUser).then((createdUser) => {
+            let random = Math.random().toString(36).slice(-8);
+            console.log(createdUser);
+            Verification.create({
+              authId: createdUser._id,
+              secretKey: random,
             })
-            .then((result) =>
+              .then(() => {
+                if(createdUser.verified !== true) {
+                  sendMail(
+                    createdUser.email,
+                    "verify email",
+                    `Hello, This email address: ${createdUser.email} is used to register in Mock Library. To verify your account please click on <a href="http://localhost:5001/user/verify?authId=${createdUser._id}&secretKey=${random}">this link</a>
+                            Thanks,
+                            Your nöix Team.`
+                  );
+                }
+              }).then((result) =>
               res.json({
                 notification: {
                   title: "Please, check your email to verify your account.",
@@ -45,10 +52,12 @@ const createUser = (req, res) => {
               })
             )
             .catch((error) => console.log(error));
-        });
-      }
-    })
-    .catch((error) => console.log(error));
+          });
+        }
+      })
+      .catch((error) => console.log(error));
+  }
+  
 };
 
 const emailVerify = (req, res) => {
@@ -91,12 +100,9 @@ const login = (req, res) => {
       if (result.verified === true) {
         bcrypt.compare(loginData.password, result.password, (err, response) => {
           if (response) {
-            const token = jwt.sign({ result }, process.env.PRIVATEKEY, {
-              algorithm: "HS256",
+            const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
+              expiresIn: '1h'
             });
-            req.session.user = result;
-            req.session.save();
-
             const apiCall = unirest(
               "GET",
               "https://ip-geo-location.p.rapidapi.com/ip/check"
@@ -107,11 +113,15 @@ const login = (req, res) => {
             });
             apiCall.end(function(location) {
               if (res.error) throw new Error(location.error);
-              console.log(location.body);
               User.findOneAndUpdate({email: loginData.email}, {location: location.body}).then(() => {
-                res.json({
+                console.log('result', result)
+                res
+                .cookie('token', token, {
+                  expires: new Date(Date.now() + 172800000),
+                  httpOnly: true,
+                })
+                .json({
                   notification: {title: "You successfully logged in.", type: "success"},
-                  token,
                   result
                 });
               })
@@ -222,6 +232,7 @@ const googleAuthController = (req, res) => {
           User.create(userData)
             .then((result) => {
               res.json(result);
+              console.log('google result:', result)
             })
             .catch((err) => console.log(err));
         });
@@ -230,20 +241,19 @@ const googleAuthController = (req, res) => {
     .catch((err) => console.log(err));
 };
   
-const logout = (req, res) => {
-  req.session.destroy();
-  res.json({
-    notification: {
-      title: "You successfully logged out.",
-      type: "success",
-    },
-  });
+
+const logout = (req, res, next) => {
+  res.clearCookie('token').json({
+            notification: {
+              title: "You successfully logged out.",
+              type: "success",
+            },
+          });
 };
 
 const profileUpdate = (req, res) => {
   const id = req.body[0]._id;
   const update = req.body[1];
-  // console.log();
 
   User.updateOne(
     {
@@ -255,7 +265,7 @@ const profileUpdate = (req, res) => {
   )
     .then((result) => {
       res.json(result);
-      console.log(result);
+      console.log('edit profile', result);
     })
     .catch((err) => console.log(err));
 };
