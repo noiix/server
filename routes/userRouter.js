@@ -65,7 +65,7 @@ router.get("/all", getAllMusicByUser);
 
 router.post("/googleauth", googleAuthController);
 
-router.post("/profileupdate", profileUpdate);
+router.post("/profile/edit", profileUpdate);
 
 router.get("/all", getAllMusicByUser);
 
