@@ -9,6 +9,7 @@ const {
   googleAuthController,
   logout,
   profileUpdate,
+  checkGenreByUser,
 } = require("../controllers/userController");
 const { body } = require("express-validator");
 
@@ -68,6 +69,8 @@ router.post("/googleauth", googleAuthController);
 router.post("/profile/edit", profileUpdate);
 
 router.get("/all", getAllMusicByUser);
+
+router.get("/checkgenre", checkGenreByUser);
 
 // router.get('/userId/tracks', getAllTracks)
 
