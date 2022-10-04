@@ -2,7 +2,8 @@ const Music = require('../models/musicModel')
 const fs = require('fs')
 const path = require('path')
 const cloudinary = require('cloudinary').v2;
-require('dotenv').config()
+require('dotenv').config();
+const jwt = require('jsonwebtoken')
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
@@ -10,7 +11,12 @@ cloudinary.config({
     api_secret: process.env.API_SECRET
 })
 const audioUpload = (req, res) => {
-    
+    // decode jtw token to get currentUser
+    // const decodedUser = jwt.decode(req.user);
+    // console.log(decodedUser);
+    console.log('req.user', req.user)
+
+    // save file to upload temporarily in uploads dir
     let fileName = req.file.originalname;
     let uploadLocation = path.join( __dirname + '/../uploads/' + fileName);
 
@@ -28,7 +34,7 @@ const audioUpload = (req, res) => {
                         let resultUrl = result.secure_url
                         console.log('temp file was deleted');
                         let musicFile = {
-                            artist: req.session.user._id,
+                            artist: req.user.result._id,
                             title: req.body.title,
                             path: resultUrl,
                             private: false,
