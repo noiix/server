@@ -179,7 +179,7 @@ const emailVerify = (req, res) => {
   });
 };  
 
-
+  
 const logout = (req, res) => {
   req.session.destroy()
   res.json({
