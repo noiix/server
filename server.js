@@ -39,48 +39,10 @@ app.get("/", (req, res) => {
 });
 app.use("/user", userRouter);
 app.use("/music", musicRouter);
-app.use("/chat", chatRouter);
-
-app.get("/", (req, res) => {
-  res.json({
-    page: "main page",
-    notification: { title: "Welcome to this amazing app", type: "success" },
-  });
-});
-app.use("/user", userRouter);
-app.use("/music", musicRouter);
-app.use("/chat", chatRouter);
+// app.use("/chat", chatRouter);
 
 // server listen
 
 const server = app.listen(PORT, () => {
   console.log("listening on port " + PORT);
 });
-<<<<<<< HEAD
-
-module.exports = {server}
-// audio storage
-
-// const storage = new GridFsStorage({
-//     url: process.env.DB_LINK_MUSIC,
-//     file: (req, res) => {
-//         return new Promise((resolve, reject) => {
-//         crypto.randomBytes(16, (err, buf) => {
-//             if (err) {
-//               return reject(err);
-//             }
-//             const filename = buf.toString('hex') + path.extname(file.originalname);
-//             const fileInfo = {
-//               filename: filename,
-//               bucketName: 'uploads'
-//             };
-//             resolve(fileInfo);
-//           });
-//         });
-//     }})
-
-
-// const upload = multer({storage})
-
-=======
->>>>>>> f1fa8e507f45e24eafa4c6fd41a73e601713f442
