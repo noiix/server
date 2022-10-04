@@ -30,7 +30,7 @@ const userSchema = new Schema({
     type: String,
   },
   verified: { type: Boolean, default: false },
-  image: { type: String },
+  image: { type: String, default: "" },
   createdAt: { type: Date },
   genre: [
     {
