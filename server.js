@@ -30,15 +30,15 @@ app.use(
 
 //routes
 
-
-
-app.get('/', (req, res) => {
-    res.json({page:'main page', notification:{title: "Welcome to this amazing app", type: "success"}})
-})    
-app.use('/user', userRouter);
-app.use('/music', musicRouter);
-app.use('/chat', chatRouter);
-
+app.get("/", (req, res) => {
+  res.json({
+    page: "main page",
+    notification: { title: "Welcome to this amazing app", type: "success" },
+  });
+});
+app.use("/user", userRouter);
+app.use("/music", musicRouter);
+app.use("/chat", chatRouter);
 
 app.get("/", (req, res) => {
   res.json({
@@ -55,28 +55,3 @@ app.use("/chat", chatRouter);
 app.listen(PORT, () => {
   console.log("listening on port " + PORT);
 });
-
-
-// audio storage
-
-// const storage = new GridFsStorage({
-//     url: process.env.DB_LINK_MUSIC,
-//     file: (req, res) => {
-//         return new Promise((resolve, reject) => {
-//         crypto.randomBytes(16, (err, buf) => {
-//             if (err) {
-//               return reject(err);
-//             }
-//             const filename = buf.toString('hex') + path.extname(file.originalname);
-//             const fileInfo = {
-//               filename: filename,
-//               bucketName: 'uploads'
-//             };
-//             resolve(fileInfo);
-//           });
-//         });
-//     }})
-
-
-// const upload = multer({storage})
-
