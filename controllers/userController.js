@@ -39,7 +39,7 @@ const createUser = (req, res) => {
             .then((result) =>
               res.json({
                 notification: {
-                  title: "Please, check your email to verify your account",
+                  title: "Please, check your email to verify your account.",
                   type: "info",
                 },
               })
@@ -73,7 +73,7 @@ const emailVerify = (req, res) => {
       });
     } else {
       res.json({
-        notification: { title: "verification not successful.", type: "error" },
+        notification: { title: "The verification was not successful.", type: "error" },
       });
     }
   });
@@ -81,75 +81,61 @@ const emailVerify = (req, res) => {
 
 const login = (req, res) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.send(errors.array().map((err) => err.msg));
-    console.log(errors.array());
-  } else {
+  if(!errors.isEmpty()){
+    res.send(errors.array().map(err => err.msg));
+    console.log(errors.array())
+  }else {
     const loginData = req.body;
-    User.findOne({ email: loginData.email })
-      .then((result) => {
-        if (result != null) {
-          if (result.verified === true) {
-            bcrypt.compare(
-              loginData.password,
-              result.password,
-              (err, response) => {
-                if (response) {
-                  const token = jwt.sign({ result }, process.env.PRIVATEKEY, {
-                    algorithm: "HS256",
-                  });
-                  req.session.user = result;
-                  req.session.save();
+  User.findOne({ email: loginData.email }).then((result) => {
+    if (result != null) {
+      if (result.verified === true) {
+        bcrypt.compare(loginData.password, result.password, (err, response) => {
+          if (response) {
+            const token = jwt.sign({ result }, process.env.PRIVATEKEY, {
+              algorithm: "HS256",
+            });
+            req.session.user = result;
+            req.session.save();
 
-                  const apiCall = unirest(
-                    "GET",
-                    "https://ip-geo-location.p.rapidapi.com/ip/check"
-                  );
-                  apiCall.headers({
-                    "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
-                    "x-rapidapi-key":
-                      "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
-                  });
-                  apiCall.end(function (location) {
-                    if (res.error) throw new Error(location.error);
-                    console.log(location.body);
-                    User.findOneAndUpdate(
-                      { email: loginData.email },
-                      { location: location.body }
-                    ).then(() => {
-                      res.json({
-                        notification: { title: "password valid", type: "info" },
-                        token,
-                        result,
-                      });
-                    });
-                  });
-                } else {
-                  res.json({
-                    notification: { title: "wrong password", type: "error" },
-                  });
-                }
-              }
+            const apiCall = unirest(
+              "GET",
+              "https://ip-geo-location.p.rapidapi.com/ip/check"
             );
+            apiCall.headers({
+              "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
+              "x-rapidapi-key": "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44"
+            });
+            apiCall.end(function(location) {
+              if (res.error) throw new Error(location.error);
+              console.log(location.body);
+              User.findOneAndUpdate({email: loginData.email}, {location: location.body}).then(() => {
+                res.json({
+                  notification: {title: "You successfully logged in.", type: "success"},
+                  token,
+                  result
+                });
+              })
+              
+            });
           } else {
-            res.json({
-              notification: {
-                title: "please verify your account",
-                type: "warning",
-              },
+            res.json({notification:
+              {title: "Password and email do not match.", type: "error"}
             });
           }
-        } else {
-          res.json({
-            notification: {
-              title: "please enter a valid email address",
-              type: "error",
-            },
-          });
-        }
-      })
-      .catch((err) => console.log(err));
+        });
+      } else {
+        res.json({notification:
+         { title: "Please, verify your account.", type: "info"}
+        });
+      }
+    } else {
+      res.json({notification:
+        {title: "Please, enter a valid email address.", type: "error"}
+      });
+    }
+  }).catch(err => console.log(err))
   }
+  
 };
 
 const getAllUsers = (req, res) => {
@@ -243,7 +229,7 @@ const googleAuthController = (req, res) => {
     })
     .catch((err) => console.log(err));
 };
-
+  
 const logout = (req, res) => {
   req.session.destroy();
   res.json({

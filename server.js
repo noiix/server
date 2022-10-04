@@ -4,11 +4,12 @@ require("dotenv").config();
 const cors = require("cors");
 const PORT = process.env.PORT;
 const mongoose = require("mongoose");
+require("./connections/userDB");
+const session = require("express-session");
+const cookieParser = require('cookie-parser');
 const userRouter = require("./routes/userRouter");
 const musicRouter = require("./routes/musicRouter");
 const chatRouter = require("./routes/chatRouter");
-require("./connections/userDB");
-const session = require("express-session");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -52,6 +53,34 @@ app.use("/chat", chatRouter);
 
 // server listen
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log("listening on port " + PORT);
 });
+<<<<<<< HEAD
+
+module.exports = {server}
+// audio storage
+
+// const storage = new GridFsStorage({
+//     url: process.env.DB_LINK_MUSIC,
+//     file: (req, res) => {
+//         return new Promise((resolve, reject) => {
+//         crypto.randomBytes(16, (err, buf) => {
+//             if (err) {
+//               return reject(err);
+//             }
+//             const filename = buf.toString('hex') + path.extname(file.originalname);
+//             const fileInfo = {
+//               filename: filename,
+//               bucketName: 'uploads'
+//             };
+//             resolve(fileInfo);
+//           });
+//         });
+//     }})
+
+
+// const upload = multer({storage})
+
+=======
+>>>>>>> f1fa8e507f45e24eafa4c6fd41a73e601713f442
