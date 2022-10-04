@@ -14,20 +14,20 @@ const chatRouter = require("./routes/chatRouter");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(cors());
-
+app.use(cors({origin: 'http://localhost:3000', credentials: true}));
+app.use(cookieParser());
 // session configuration
 
-app.use(
-  session({
-    secret: process.env.SESSIONKEY,
-    resave: true,
-    saveUninitialized: true,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 12,
-    },
-  })
-);
+// app.use(
+//   session({
+//     secret: process.env.SESSIONKEY,
+//     resave: true,
+//     saveUninitialized: true,
+//     cookie: {
+//       maxAge: 1000 * 60 * 60 * 12,
+//     },
+//   })
+// );
 
 //routes
 

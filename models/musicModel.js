@@ -7,8 +7,7 @@ const musicSchema = new Schema({
         ref: 'User', required: true},
     title: {type: String, required: [true, 'title is required']},
     path: {type: String, required: true, unique: true},
-    private: {type: Boolean},
-  
+    private: {type: Boolean}
 })
 
 const Music = mongoose.model('Music', musicSchema)
