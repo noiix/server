@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require('../models/userModel');
-const {createUser, emailVerify, login, getAllMusicByUser, logout} = require('../controllers/userController');
+const {createUser, emailVerify, login, getAllMusicByUser, logout, googleAuthController} = require('../controllers/userController');
 const {body} = require('express-validator')
 
 router.get("/", (req, res) => {
@@ -31,6 +31,7 @@ login);
 router.post("/create", createUser);
 router.get("/logout", logout)
 router.get("/all", getAllMusicByUser)
+router.post("/googleauth", googleAuthController);
 
 
 // router.get('/userId/tracks', getAllTracks)

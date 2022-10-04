@@ -196,9 +196,40 @@ const logout = (req, res) => {
       title: "You successfully logged out.", type: "success"
     }
   })
-}
+};
 
-module.exports = { createUser, emailVerify, login, logout, getAllUsers, getAllMusicByUser };
+const googleAuthController = (req, res) => {
+  let userData = req.body;
+  User.findOne({ email: userData.email })
+    .then((result) => {
+      if (result) {
+        res.json(result);
+      } else {
+        const apiCall = unirest(
+          "GET",
+          "https://ip-geo-location.p.rapidapi.com/ip/check"
+        );
+        apiCall.headers({
+          "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
+          "x-rapidapi-key":
+            "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
+        });
+        apiCall.end(function (location) {
+          if (res.error) throw new Error(location.error);
+          console.log(location.body);
+          userData.location = location.body;
+          User.create(userData)
+            .then((result) => {
+              res.json(result);
+            })
+            .catch((err) => console.log(err));
+        });
+      }
+    })
+    .catch((err) => console.log(err));
+};
+
+module.exports = { createUser, emailVerify, login, logout, getAllUsers, getAllMusicByUser, googleAuthController };
 
 
 

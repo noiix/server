@@ -31,7 +31,7 @@ const userSchema = new Schema({
     type: String,
   },
   verified: { type: Boolean, default: false },
-  image: { type: String },
+  image: { type: String, default: "" },
   createdAt: { type: Date },
   genre: [{type: String, enum: ['pop', 'rock', 'hip hop', 'latin', 'edm', 'r&b', 'country', 'folk', 'classical', 'jazz', 'metal', 'easy listening', 'new age', 'blues', 'world', 'electronic', 'techno', 'house']}],
   instrument: {type: String, enum: ['guitar', 'piano', 'drums', 'percussion', 'bass', 'synths', 'vocals', 'violin', 'saxophone', 'cello', 'double bass', 'clarinet', 'trumpet', 'flute', 'harp']},
