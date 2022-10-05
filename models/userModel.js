@@ -57,7 +57,7 @@ const userSchema = new Schema({
       ],
     },
   ],
-  instrument: {
+  instrument: [{
     type: String,
     enum: [
       "guitar",
@@ -76,7 +76,7 @@ const userSchema = new Schema({
       "flute",
       "harp",
     ],
-  },
+  }],
   liked_songs: [],
   location: {},
   // ipInfo: {
