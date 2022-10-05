@@ -10,11 +10,10 @@ const { validationResult } = require("express-validator");
 
 const createUser = (req, res) => {
   const errors = validationResult(req);
-  if(!errors.isEmpty()){
-    res.send(errors.array().map(err => err.msg));
-    console.log(errors.array())
-  }
-  else {
+  if (!errors.isEmpty()) {
+    res.send(errors.array().map((err) => err.msg));
+    console.log(errors.array());
+  } else {
     const newUser = req.body;
     User.findOne({ email: newUser.email })
       .then((result) => {
@@ -34,7 +33,7 @@ const createUser = (req, res) => {
               secretKey: random,
             })
               .then(() => {
-                if(createdUser.verified !== true) {
+                if (createdUser.verified !== true) {
                   sendMail(
                     createdUser.email,
                     "verify email",
@@ -43,21 +42,21 @@ const createUser = (req, res) => {
                             Your nöix Team.`
                   );
                 }
-              }).then((result) =>
-              res.json({
-                notification: {
-                  title: "Please, check your email to verify your account.",
-                  type: "info",
-                },
               })
-            )
-            .catch((error) => console.log(error));
+              .then((result) =>
+                res.json({
+                  notification: {
+                    title: "Please, check your email to verify your account.",
+                    type: "info",
+                  },
+                })
+              )
+              .catch((error) => console.log(error));
           });
         }
       })
       .catch((error) => console.log(error));
   }
-  
 };
 
 const emailVerify = (req, res) => {
@@ -82,7 +81,10 @@ const emailVerify = (req, res) => {
       });
     } else {
       res.json({
-        notification: { title: "The verification was not successful.", type: "error" },
+        notification: {
+          title: "The verification was not successful.",
+          type: "error",
+        },
       });
     }
   });
@@ -147,9 +149,10 @@ const login = (req, res) => {
   }
   
 };
+  
 
 const getAllUsers = (req, res) => {
-  if (req.session.user) {
+  if (req.user) {
     User.find()
       .then((result) => res.json(result))
       .catch((err) => res.json(err));
@@ -157,13 +160,22 @@ const getAllUsers = (req, res) => {
 };
 
 const getAllMusicByUser = (req, res) => {
-  if (req.session.user) {
+  if (req.user) {
     Music.find()
       .populate("artist")
       .then((result) => res.json(result))
       .catch((err) => res.json(err));
   }
 };
+
+const getNearByUsers = (req, res) => {
+  User.find({location: req.user.result.location.city.name})
+  .then(result => {
+    console.log('nearby users', result)
+    res.json(result)
+  })
+  .catch(err => console.log(err))
+}
 
 // const getNearByUsers = async (req, res) => {
 //   try {
@@ -214,7 +226,21 @@ const googleAuthController = (req, res) => {
   User.findOne({ email: userData.email })
     .then((result) => {
       if (result) {
-        res.json(result);
+        const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
+          expiresIn: "1h",
+        });
+        res
+          .cookie("token", token, {
+            expires: new Date(Date.now() + 172800000),
+            httpOnly: true,
+          })
+          .json({
+            notification: {
+              title: "You successfully logged in.",
+              type: "success",
+            },
+            result,
+          });
       } else {
         const apiCall = unirest(
           "GET",
@@ -231,8 +257,21 @@ const googleAuthController = (req, res) => {
           userData.location = location.body;
           User.create(userData)
             .then((result) => {
-              res.json(result);
-              console.log('google result:', result)
+              const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
+                expiresIn: "1h",
+              });
+              res
+                .cookie("token", token, {
+                  expires: new Date(Date.now() + 172800000),
+                  httpOnly: true,
+                })
+                .json({
+                  notification: {
+                    title: "You successfully logged in.",
+                    type: "success",
+                  },
+                  result,
+                });
             })
             .catch((err) => console.log(err));
         });
@@ -240,34 +279,40 @@ const googleAuthController = (req, res) => {
     })
     .catch((err) => console.log(err));
 };
-  
 
 const logout = (req, res, next) => {
-  res.clearCookie('token').json({
-            notification: {
-              title: "You successfully logged out.",
-              type: "success",
-            },
-          });
+  res.clearCookie("token").json({
+    notification: {
+      title: "You successfully logged out.",
+      type: "success",
+    },
+  });
 };
 
 const profileUpdate = (req, res) => {
-  const id = req.body[0]._id;
-  const update = req.body[1];
+  const id = req.user.result._id;
+  console.log("userid: ", req.user.result._id);
+  const update = req.body;
+  console.log("request body: ", update);
 
-  User.updateOne(
-    {
-      _id: id,
-    },
-    {
-      $set: update,
-    }
-  )
+  User.findByIdAndUpdate(id, update, { new: true })
     .then((result) => {
       res.json(result);
-      console.log('edit profile', result);
+      console.log("update result!: ", result);
     })
     .catch((err) => console.log(err));
+};
+
+const checkGenreByUser = (req, res) => {
+  console.log("req.user: ", req.user);
+  User.findOne({ _id: req.user.result._id })
+    .then((response) => {
+      console.log("genre response: ", response);
+      res.json(response.genre);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 module.exports = {
@@ -279,4 +324,6 @@ module.exports = {
   getAllMusicByUser,
   googleAuthController,
   profileUpdate,
+  getNearByUsers,
+  checkGenreByUser
 };

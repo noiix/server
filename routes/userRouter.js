@@ -9,9 +9,11 @@ const {
   googleAuthController,
   logout,
   profileUpdate,
+  getNearByUsers,
+  checkGenreByUser,
 } = require("../controllers/userController");
 const { body } = require("express-validator");
-const {auth} = require("../middleware/checkLoggedIn")
+const { auth } = require("../middleware/checkLoggedIn");
 
 router.get("/", (req, res) => {
   res.json("this is from userRouter");
@@ -66,9 +68,11 @@ router.get("/all", getAllMusicByUser);
 
 router.post("/googleauth", googleAuthController);
 
-router.post("/profile/edit", auth, profileUpdate);
+router.patch("/profile/edit", auth, profileUpdate);
 
-router.get("/all", getAllMusicByUser);
+router.get("/all", getNearByUsers);
+
+router.get("/checkgenre", auth, checkGenreByUser);
 
 // router.get('/userId/tracks', getAllTracks)
 
