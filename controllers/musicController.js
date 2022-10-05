@@ -15,9 +15,11 @@ const audioUpload = (req, res) => {
     // const decodedUser = jwt.decode(req.user);
     // console.log(decodedUser);
     console.log('req.user', req.user)
+    console.log('req.file')
 
     // save file to upload temporarily in uploads dir
     let fileName = req.file.originalname;
+    console.log('req.file', req.body)
     let uploadLocation = path.join( __dirname + '/../uploads/' + fileName);
 
     fs.writeFileSync(uploadLocation, Buffer.from(new Uint8Array(req.file.buffer)));
@@ -38,7 +40,6 @@ const audioUpload = (req, res) => {
                             title: req.body.title,
                             path: resultUrl,
                             private: false,
-                            sharedWith: []
                             }
                     Music.create(musicFile).then((data) => {
                         res.json(data)}).catch(err => res.json(err))
@@ -74,7 +75,7 @@ const audioUpload = (req, res) => {
 // }
 
 const getAllMyTracks = (req, res) => {
-   Music.find({artist: req.session.user._id})
+   Music.find({artist: req.user.result._id})
    .then((musics) => {
     res.json(musics)
    })
@@ -83,8 +84,8 @@ const getAllMyTracks = (req, res) => {
 
 
 const getAllTracks = (req, res) => {
-    if(req.session.user) {
-        Music.find().then().catch()
+    if(req.user.result) {
+        Music.find().then(result => res.json(result)).catch(err => console.log(err))
     }
 }
 

@@ -6,6 +6,7 @@ const PORT = process.env.PORT;
 const mongoose = require("mongoose");
 require("./connections/userDB");
 const session = require("express-session");
+const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const userRouter = require("./routes/userRouter");
 const musicRouter = require("./routes/musicRouter");
@@ -14,6 +15,8 @@ const chatRouter = require("./routes/chatRouter");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 app.use(cors({origin: 'http://localhost:3000', credentials: true}));
 app.use(cookieParser());
 // session configuration

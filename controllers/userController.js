@@ -149,7 +149,7 @@ const login = (req, res) => {
 };
 
 const getAllUsers = (req, res) => {
-  if (req.session.user) {
+  if (req.user) {
     User.find()
       .then((result) => res.json(result))
       .catch((err) => res.json(err));
@@ -157,13 +157,22 @@ const getAllUsers = (req, res) => {
 };
 
 const getAllMusicByUser = (req, res) => {
-  if (req.session.user) {
+  if (req.user) {
     Music.find()
       .populate("artist")
       .then((result) => res.json(result))
       .catch((err) => res.json(err));
   }
 };
+
+const getNearByUsers = (req, res) => {
+  User.find({location: req.user.result.location.city.name})
+  .then(result => {
+    console.log('nearby users', result)
+    res.json(result)
+  })
+  .catch(err => console.log(err))
+}
 
 // const getNearByUsers = async (req, res) => {
 //   try {
@@ -214,7 +223,18 @@ const googleAuthController = (req, res) => {
   User.findOne({ email: userData.email })
     .then((result) => {
       if (result) {
-        res.json(result);
+        const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
+          expiresIn: '1h'
+        });
+        res
+                .cookie('token', token, {
+                  expires: new Date(Date.now() + 172800000),
+                  httpOnly: true,
+                })
+                .json({
+                  notification: {title: "You successfully logged in.", type: "success"},
+                  result
+                });
       } else {
         const apiCall = unirest(
           "GET",
@@ -231,8 +251,18 @@ const googleAuthController = (req, res) => {
           userData.location = location.body;
           User.create(userData)
             .then((result) => {
-              res.json(result);
-              console.log('google result:', result)
+              const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
+                expiresIn: '1h'
+              });
+              res
+                .cookie('token', token, {
+                  expires: new Date(Date.now() + 172800000),
+                  httpOnly: true,
+                })
+                .json({
+                  notification: {title: "You successfully logged in.", type: "success"},
+                  result
+                });
             })
             .catch((err) => console.log(err));
         });
@@ -252,19 +282,16 @@ const logout = (req, res, next) => {
 };
 
 const profileUpdate = (req, res) => {
-  const id = req.body[0]._id;
-  const update = req.body[1];
+  const id = req.user.result._id
+  const update = req.body;
 
-  User.updateOne(
-    {
-      _id: id,
-    },
-    {
-      $set: update,
-    }
+  User.findByIdAndUpdate(
+      id,
+      update,
+      {new: true}
   )
     .then((result) => {
-      res.json(result);
+      res.json({result, notification: {title: 'You successfully updated your profile', type: 'info'}});
       console.log('edit profile', result);
     })
     .catch((err) => console.log(err));
@@ -279,4 +306,5 @@ module.exports = {
   getAllMusicByUser,
   googleAuthController,
   profileUpdate,
+  getNearByUsers
 };
