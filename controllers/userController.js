@@ -82,7 +82,10 @@ const emailVerify = (req, res) => {
       });
     } else {
       res.json({
-        notification: { title: "The verification was not successful.", type: "error" },
+        notification: {
+          title: "The verification was not successful.",
+          type: "error",
+        },
       });
     }
   });
@@ -147,6 +150,7 @@ const login = (req, res) => {
   }
   
 };
+  
 
 const getAllUsers = (req, res) => {
   if (req.user) {
@@ -223,18 +227,7 @@ const googleAuthController = (req, res) => {
   User.findOne({ email: userData.email })
     .then((result) => {
       if (result) {
-        const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
-          expiresIn: '1h'
-        });
-        res
-                .cookie('token', token, {
-                  expires: new Date(Date.now() + 172800000),
-                  httpOnly: true,
-                })
-                .json({
-                  notification: {title: "You successfully logged in.", type: "success"},
-                  result
-                });
+        res.json(result);
       } else {
         const apiCall = unirest(
           "GET",
@@ -251,18 +244,8 @@ const googleAuthController = (req, res) => {
           userData.location = location.body;
           User.create(userData)
             .then((result) => {
-              const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
-                expiresIn: '1h'
-              });
-              res
-                .cookie('token', token, {
-                  expires: new Date(Date.now() + 172800000),
-                  httpOnly: true,
-                })
-                .json({
-                  notification: {title: "You successfully logged in.", type: "success"},
-                  result
-                });
+              res.json(result);
+              console.log('google result:', result)
             })
             .catch((err) => console.log(err));
         });
@@ -282,16 +265,19 @@ const logout = (req, res, next) => {
 };
 
 const profileUpdate = (req, res) => {
-  const id = req.user.result._id
-  const update = req.body;
+  const id = req.body[0]._id;
+  const update = req.body[1];
 
-  User.findByIdAndUpdate(
-      id,
-      update,
-      {new: true}
+  User.updateOne(
+    {
+      _id: id,
+    },
+    {
+      $set: update,
+    }
   )
     .then((result) => {
-      res.json({result, notification: {title: 'You successfully updated your profile', type: 'info'}});
+      res.json(result);
       console.log('edit profile', result);
     })
     .catch((err) => console.log(err));

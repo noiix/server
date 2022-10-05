@@ -6,8 +6,12 @@ const PORT = process.env.PORT;
 const mongoose = require("mongoose");
 require("./connections/userDB");
 const session = require("express-session");
+<<<<<<< HEAD
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+=======
+const cookieParser = require("cookie-parser");
+>>>>>>> 310262c1849238c8a25edab442ce40e8aacd6ed2
 const userRouter = require("./routes/userRouter");
 const musicRouter = require("./routes/musicRouter");
 const chatRouter = require("./routes/chatRouter");
