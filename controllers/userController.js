@@ -292,7 +292,11 @@ const logout = (req, res, next) => {
 const profileUpdate = (req, res) => {
   const id = req.user.result._id;
   console.log("userid: ", req.user.result._id);
-  const update = req.body;
+  const update = {
+    username: req.body.username,
+    genre: req.body.genre,
+    instrument: req.body.instrument
+  };
   console.log("request body: ", update);
 
   User.findByIdAndUpdate(id, update, { new: true })
