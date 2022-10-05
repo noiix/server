@@ -9,14 +9,11 @@ const {
   googleAuthController,
   logout,
   profileUpdate,
-<<<<<<< HEAD
-  getNearByUsers
-=======
+  getNearByUsers,
   checkGenreByUser,
->>>>>>> 310262c1849238c8a25edab442ce40e8aacd6ed2
 } = require("../controllers/userController");
 const { body } = require("express-validator");
-const {auth} = require("../middleware/checkLoggedIn")
+const { auth } = require("../middleware/checkLoggedIn");
 
 router.get("/", (req, res) => {
   res.json("this is from userRouter");
@@ -75,7 +72,7 @@ router.patch("/profile/edit", auth, profileUpdate);
 
 router.get("/all", getNearByUsers);
 
-router.get("/checkgenre", checkGenreByUser);
+router.get("/checkgenre", auth, checkGenreByUser);
 
 // router.get('/userId/tracks', getAllTracks)
 
