@@ -10,11 +10,10 @@ const { validationResult } = require("express-validator");
 
 const createUser = (req, res) => {
   const errors = validationResult(req);
-  if(!errors.isEmpty()){
-    res.send(errors.array().map(err => err.msg));
-    console.log(errors.array())
-  }
-  else {
+  if (!errors.isEmpty()) {
+    res.send(errors.array().map((err) => err.msg));
+    console.log(errors.array());
+  } else {
     const newUser = req.body;
     User.findOne({ email: newUser.email })
       .then((result) => {
@@ -34,7 +33,7 @@ const createUser = (req, res) => {
               secretKey: random,
             })
               .then(() => {
-                if(createdUser.verified !== true) {
+                if (createdUser.verified !== true) {
                   sendMail(
                     createdUser.email,
                     "verify email",
@@ -43,21 +42,21 @@ const createUser = (req, res) => {
                             Your nöix Team.`
                   );
                 }
-              }).then((result) =>
-              res.json({
-                notification: {
-                  title: "Please, check your email to verify your account.",
-                  type: "info",
-                },
               })
-            )
-            .catch((error) => console.log(error));
+              .then((result) =>
+                res.json({
+                  notification: {
+                    title: "Please, check your email to verify your account.",
+                    type: "info",
+                  },
+                })
+              )
+              .catch((error) => console.log(error));
           });
         }
       })
       .catch((error) => console.log(error));
   }
-  
 };
 
 const emailVerify = (req, res) => {
@@ -98,7 +97,6 @@ const login = (req, res) => {
     console.log(errors.array());
   } else {
     const loginData = req.body;
-<<<<<<< HEAD
     User.findOne({ email: loginData.email })
       .then((result) => {
         if (result != null) {
@@ -108,12 +106,9 @@ const login = (req, res) => {
               result.password,
               (err, response) => {
                 if (response) {
-                  const token = jwt.sign({ result }, process.env.PRIVATEKEY, {
-                    algorithm: "HS256",
+                  const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
+                    expiresIn: "1h",
                   });
-                  req.session.user = result;
-                  req.session.save();
-
                   const apiCall = unirest(
                     "GET",
                     "https://ip-geo-location.p.rapidapi.com/ip/check"
@@ -125,19 +120,23 @@ const login = (req, res) => {
                   });
                   apiCall.end(function (location) {
                     if (res.error) throw new Error(location.error);
-                    console.log(location.body);
                     User.findOneAndUpdate(
                       { email: loginData.email },
                       { location: location.body }
                     ).then(() => {
-                      res.json({
-                        notification: {
-                          title: "You successfully logged in.",
-                          type: "success",
-                        },
-                        token,
-                        result,
-                      });
+                      console.log("result", result);
+                      res
+                        .cookie("token", token, {
+                          expires: new Date(Date.now() + 172800000),
+                          httpOnly: true,
+                        })
+                        .json({
+                          notification: {
+                            title: "You successfully logged in.",
+                            type: "success",
+                          },
+                          result,
+                        });
                     });
                   });
                 } else {
@@ -150,40 +149,6 @@ const login = (req, res) => {
                 }
               }
             );
-=======
-  User.findOne({ email: loginData.email }).then((result) => {
-    if (result != null) {
-      if (result.verified === true) {
-        bcrypt.compare(loginData.password, result.password, (err, response) => {
-          if (response) {
-            const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
-              expiresIn: '1h'
-            });
-            const apiCall = unirest(
-              "GET",
-              "https://ip-geo-location.p.rapidapi.com/ip/check"
-            );
-            apiCall.headers({
-              "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
-              "x-rapidapi-key": "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44"
-            });
-            apiCall.end(function(location) {
-              if (res.error) throw new Error(location.error);
-              User.findOneAndUpdate({email: loginData.email}, {location: location.body}).then(() => {
-                console.log('result', result)
-                res
-                .cookie('token', token, {
-                  expires: new Date(Date.now() + 172800000),
-                  httpOnly: true,
-                })
-                .json({
-                  notification: {title: "You successfully logged in.", type: "success"},
-                  result
-                });
-              })
-              
-            });
->>>>>>> 4b990b12742a229c36c84cf5c3d518bf630bef46
           } else {
             res.json({
               notification: {
@@ -271,7 +236,21 @@ const googleAuthController = (req, res) => {
   User.findOne({ email: userData.email })
     .then((result) => {
       if (result) {
-        res.json(result);
+        const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
+          expiresIn: "1h",
+        });
+        res
+          .cookie("token", token, {
+            expires: new Date(Date.now() + 172800000),
+            httpOnly: true,
+          })
+          .json({
+            notification: {
+              title: "You successfully logged in.",
+              type: "success",
+            },
+            result,
+          });
       } else {
         const apiCall = unirest(
           "GET",
@@ -288,8 +267,21 @@ const googleAuthController = (req, res) => {
           userData.location = location.body;
           User.create(userData)
             .then((result) => {
-              res.json(result);
-              console.log('google result:', result)
+              const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
+                expiresIn: "1h",
+              });
+              res
+                .cookie("token", token, {
+                  expires: new Date(Date.now() + 172800000),
+                  httpOnly: true,
+                })
+                .json({
+                  notification: {
+                    title: "You successfully logged in.",
+                    type: "success",
+                  },
+                  result,
+                });
             })
             .catch((err) => console.log(err));
         });
@@ -297,50 +289,40 @@ const googleAuthController = (req, res) => {
     })
     .catch((err) => console.log(err));
 };
-<<<<<<< HEAD
 
-const logout = (req, res) => {
-  req.session.destroy();
-  res.json({
+const logout = (req, res, next) => {
+  res.clearCookie("token").json({
     notification: {
       title: "You successfully logged out.",
       type: "success",
     },
   });
-=======
-  
-
-const logout = (req, res, next) => {
-  res.clearCookie('token').json({
-            notification: {
-              title: "You successfully logged out.",
-              type: "success",
-            },
-          });
->>>>>>> 4b990b12742a229c36c84cf5c3d518bf630bef46
 };
 
 const profileUpdate = (req, res) => {
-  const id = req.body[0]._id;
-  const update = req.body[1];
-<<<<<<< HEAD
-  console.log(update);
-=======
->>>>>>> 4b990b12742a229c36c84cf5c3d518bf630bef46
+  const id = req.user.result._id;
+  console.log("userid: ", req.user.result._id);
+  const update = req.body;
+  console.log("request body: ", update);
 
-  User.updateOne(
-    {
-      _id: id,
-    },
-    {
-      $set: update,
-    }
-  )
+  User.findByIdAndUpdate(id, update, { new: true })
     .then((result) => {
       res.json(result);
-      console.log('edit profile', result);
+      console.log("update result!: ", result);
     })
     .catch((err) => console.log(err));
+};
+
+const checkGenreByUser = (req, res) => {
+  console.log("req.user: ", req.user);
+  User.findOne({ _id: req.user.result._id })
+    .then((response) => {
+      console.log("genre response: ", response);
+      res.json(response.genre);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 module.exports = {
@@ -352,4 +334,5 @@ module.exports = {
   getAllMusicByUser,
   googleAuthController,
   profileUpdate,
+  checkGenreByUser,
 };

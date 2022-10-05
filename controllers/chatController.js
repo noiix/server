@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 const server = require("../server");
-=======
-const server = require('../server')
->>>>>>> 4b990b12742a229c36c84cf5c3d518bf630bef46
 // const io = require('socket.io')(server)
 
 const connect = () => {
