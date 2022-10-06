@@ -1,21 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const connection = mongoose.connection;
-// const autoIncrement = require('mongoose-auto-increment')
-// autoIncrement.initialize(connection);
 const bcrypt = require("bcrypt");
 
-// const pointSchema = new Schema({
-//   type: {
-//     type: String,
-//     enum: ["Point"],
-//     required: true,
-//   },
-//   coordinates: {
-//     type: [Number],
-//     required: true,
-//   },
-// });
 
 const userSchema = new Schema({
   username: {
@@ -95,11 +82,6 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-// userSchema.plugin(autoIncrement.plugin, {
-//   startAt: 1,
-//   incrementBy: 1,
-//   model: "User",
-// });
 
 const User = mongoose.model("User", userSchema);
 
