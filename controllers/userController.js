@@ -169,57 +169,15 @@ const getAllMusicByUser = (req, res) => {
 };
 
 const getNearByUsers = (req, res) => {
-  User.find({location: req.user.result.location.city.name})
+  const currentLocation = req.user.result.location.city.name
+  console.log('my location: ', currentLocation)
+  User.find({}, {location: currentLocation})
   .then(result => {
     console.log('nearby users', result)
     res.json(result)
   })
   .catch(err => console.log(err))
 }
-
-// const getNearByUsers = async (req, res) => {
-//   try {
-//     const {ipInfo} = req;
-//     let nearByUsers = await User.find({
-//       lastLocation: {
-//         $nearSphere: {
-//           $geometry: {
-//             type: "Point",
-//             coordinates: ipInfo.ll
-//           },
-//           $maxDistance: 10000
-//         }
-//       }
-//     });
-//     if(!nearByUsers || nearByUsers.length === 0) {
-//       res.status(201).json({
-//         notification: {title: "There are no users near you.", type: "info"},
-//         nearByUser: []
-//       });
-//     } else {
-//       res.status(201).json({
-//         notification:{title:  "There are users near you.", type: "info"},
-//         nearByUsers
-//       });
-//     }
-//   } catch(err) {
-//     res.status(400).json({
-//       notification: {title: `Error by finding nearby users. ${err.message}`}, type: "error"}
-//     )
-//   };
-// }
-
-// const FetchAUserController = async (req, res) => {
-//   try {
-//     console.log(req.decoded);
-//     const { ipInfo } = req;
-//     let id = req.decoded._id;
-//     let updatedUser = await UpdateLastLocation(ipInfo, id);
-//     handleResSuccess(res, "user fetched", updatedUser, 201);
-//   } catch (err) {
-//     handleResError(res, err, 400);
-//   }
-// };
 
 const googleAuthController = (req, res) => {
   let userData = req.body;
@@ -292,7 +250,11 @@ const logout = (req, res, next) => {
 const profileUpdate = (req, res) => {
   const id = req.user.result._id;
   console.log("userid: ", req.user.result._id);
-  const update = req.body;
+  const update = {
+    username: req.body.username,
+    genre: req.body.genre,
+    instrument: req.body.instrument
+  };
   console.log("request body: ", update);
 
   User.findByIdAndUpdate(id, update, { new: true })
@@ -307,8 +269,7 @@ const checkGenreByUser = (req, res) => {
   console.log("req.user: ", req.user);
   User.findOne({ _id: req.user.result._id })
     .then((response) => {
-      console.log("genre response: ", response);
-      res.json(response.genre);
+      res.json(response);
     })
     .catch((err) => {
       console.log(err);

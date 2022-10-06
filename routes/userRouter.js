@@ -64,13 +64,13 @@ router.post(
 );
 
 router.get("/logout", logout);
-router.get("/all", getAllMusicByUser);
+// router.get("/all", auth, getAllMusicByUser);
 
 router.post("/googleauth", googleAuthController);
 
 router.patch("/profile/edit", auth, profileUpdate);
 
-router.get("/all", getNearByUsers);
+router.get("/all", auth, getNearByUsers);
 
 router.get("/checkgenre", auth, checkGenreByUser);
 
