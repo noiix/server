@@ -1,4 +1,5 @@
 const Music = require('../models/musicModel')
+const User = require('../models/userModel')
 const fs = require('fs')
 const path = require('path')
 const cloudinary = require('cloudinary').v2;
@@ -42,37 +43,15 @@ const audioUpload = (req, res) => {
                             private: false,
                             }
                     Music.create(musicFile).then((data) => {
-                        res.json(data)}).catch(err => res.json(err))
-                    
+                        User.findOneAndUpdate({_id: data.artist}, {$push: {music: data._id}}).then(() => {
+                            res.json({data, notification: {title: 'You successfully uploaded your song. Well done.', type:'success'}})}).catch(err => res.json(err)) 
+                        })
+                         
                 });
             }
         }
     )
 }
-
-
-// const upload = (req, res) => {
-//     // input file = musicFile
-//     let fileName = req.files.musicFile.name;
-//     req.files.musicFile.mv(path.join(__dirname, `../uploads/${req.session.user.email}/${fileName}`), error=>{
-//         if(error){
-//             // error saving the file handler here...
-//             res.json(error)
-//         }else{
-//             // success, file was saved
-//             let musicFile = {
-//                 artist: req.session.user._id,
-//                 title: req.body.title,
-//                 path: `/uploads/${req.session.user.email}/${fileName}`,
-//                 private: false,
-//                 sharedWith: []
-//             }
-//             Music.create(musicFile).then((result) => {
-//                 res.json(result)
-//             }).catch(err => res.json(err))
-//         }
-//     })
-// }
 
 const getAllMyTracks = (req, res) => {
    Music.find({artist: req.user.result._id})

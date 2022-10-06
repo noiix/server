@@ -5,12 +5,12 @@ const {
   createUser,
   emailVerify,
   login,
-  getAllMusicByUser,
   googleAuthController,
   logout,
   profileUpdate,
   getNearByUsers,
   checkGenreByUser,
+  pictureUpdate,
 } = require("../controllers/userController");
 const { body } = require("express-validator");
 const { auth } = require("../middleware/checkLoggedIn");
@@ -64,13 +64,14 @@ router.post(
 );
 
 router.get("/logout", logout);
-router.get("/all", getAllMusicByUser);
 
 router.post("/googleauth", googleAuthController);
 
 router.patch("/profile/edit", auth, profileUpdate);
 
-router.get("/all", getNearByUsers);
+router.patch("/profile/profilepicture", auth, pictureUpdate);
+
+router.get("/all", auth, getNearByUsers);
 
 router.get("/checkifchecked", auth, checkGenreByUser);
 

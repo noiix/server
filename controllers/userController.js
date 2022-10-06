@@ -6,21 +6,27 @@ const { sendMail } = require("../models/emailModel");
 const jwt = require("jsonwebtoken");
 const unirest = require("unirest");
 const { validationResult } = require("express-validator");
-const cloudinary = require("cloudinary");
+const cloudinary = require("cloudinary").v2;
+const { response } = require("express");
+const fs = require("fs");
+const path = require("path");
 // const {UpdateLastLocation} = require('./utils/updateLocation')
 
-// cloudinary.config({
-//   cloud_name: process.env.IMG_CLOUDNAME,
-//   api_key: process.env.IMG_APIKEY,
-//   api_secret: process.env.IMG_SECRET,
-//   secure: true
-// });
+cloudinary.config({
+  cloud_name: process.env.IMG_CLOUDNAME,
+  api_key: process.env.IMG_APIKEY,
+  api_secret: process.env.IMG_SECRET,
+  secure: true,
+});
 
 const createUser = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    res.send(errors.array().map((err) => err.msg));
-    console.log(errors.array());
+    let notification = errors
+      .array()
+      .map((err) => ({ title: err.msg, type: "error" }));
+    res.json(notification);
+    console.log(notification);
   } else {
     const newUser = req.body;
     User.findOne({ email: newUser.email })
@@ -186,67 +192,23 @@ const getAllUsers = (req, res) => {
   }
 };
 
-const getAllMusicByUser = (req, res) => {
-  if (req.user) {
-    Music.find()
-      .populate("artist")
-      .then((result) => res.json(result))
-      .catch((err) => res.json(err));
-  }
-};
-
 const getNearByUsers = (req, res) => {
-  User.find({ location: req.user.result.location.city.name })
+  const currentLocation = req.user.result.location.city.name;
+  const userGenre = req.user.result.genre;
+  // console.log('my location: ', currentLocation)
+  User.find({
+    $and: [
+      { "location.city.name": currentLocation },
+      { genre: { $elemMatch: { $in: userGenre } } },
+    ],
+  })
+    .populate("music")
     .then((result) => {
-      console.log("nearby users", result);
+      console.log("users with music", result);
       res.json(result);
     })
     .catch((err) => console.log(err));
 };
-
-// const getNearByUsers = async (req, res) => {
-//   try {
-//     const {ipInfo} = req;
-//     let nearByUsers = await User.find({
-//       lastLocation: {
-//         $nearSphere: {
-//           $geometry: {
-//             type: "Point",
-//             coordinates: ipInfo.ll
-//           },
-//           $maxDistance: 10000
-//         }
-//       }
-//     });
-//     if(!nearByUsers || nearByUsers.length === 0) {
-//       res.status(201).json({
-//         notification: {title: "There are no users near you.", type: "info"},
-//         nearByUser: []
-//       });
-//     } else {
-//       res.status(201).json({
-//         notification:{title:  "There are users near you.", type: "info"},
-//         nearByUsers
-//       });
-//     }
-//   } catch(err) {
-//     res.status(400).json({
-//       notification: {title: `Error by finding nearby users. ${err.message}`}, type: "error"}
-//     )
-//   };
-// }
-
-// const FetchAUserController = async (req, res) => {
-//   try {
-//     console.log(req.decoded);
-//     const { ipInfo } = req;
-//     let id = req.decoded._id;
-//     let updatedUser = await UpdateLastLocation(ipInfo, id);
-//     handleResSuccess(res, "user fetched", updatedUser, 201);
-//   } catch (err) {
-//     handleResError(res, err, 400);
-//   }
-// };
 
 const googleAuthController = (req, res) => {
   let userData = req.body;
@@ -319,7 +281,11 @@ const logout = (req, res, next) => {
 const profileUpdate = (req, res) => {
   const id = req.user.result._id;
   console.log("userid: ", req.user.result._id);
-  const update = req.body;
+  const update = {
+    username: req.body.username,
+    genre: req.body.genre,
+    instrument: req.body.instrument,
+  };
   console.log("request body: ", update);
 
   User.findByIdAndUpdate(id, update, { new: true })
@@ -334,13 +300,57 @@ const checkGenreByUser = (req, res) => {
   console.log("req.user: ", req.user);
   User.findOne({ _id: req.user.result._id })
     .then((response) => {
-      console.log("genre response: ", response);
       res.json(response);
-      console.log("inst res: ", response.instrument);
     })
     .catch((err) => {
       console.log(err);
     });
+};
+
+const pictureUpdate = (req, res) => {
+  let fileName = req.file.originalname;
+  console.log(fileName);
+  console.log("req.file", req.body);
+  let uploadLocation = path.join(__dirname + "/../uploads/" + fileName);
+
+  fs.writeFileSync(
+    uploadLocation,
+    Buffer.from(new Uint8Array(req.file.buffer))
+  );
+
+  cloudinary.uploader.upload(
+    uploadLocation,
+    {
+      resource_type: "image",
+      folder: `images/`,
+      overwrite: true,
+    },
+    (error, result) => {
+      if (error) res.status(500).json(error);
+      else {
+        fs.unlink(uploadLocation, (deleteError) => {
+          if (deleteError) res.status(500).send(deleteError);
+          let resultUrl = result.secure_url;
+          User.findOneAndUpdate(
+            { _id: req.user.result._id },
+            { image: resultUrl }
+          )
+            .then((result) => {
+              res.json({
+                result,
+                notification: {
+                  title: "successfully updated profile picture",
+                  type: "success",
+                },
+              });
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        });
+      }
+    }
+  );
 };
 
 module.exports = {
@@ -349,9 +359,9 @@ module.exports = {
   login,
   logout,
   getAllUsers,
-  getAllMusicByUser,
   googleAuthController,
   profileUpdate,
   getNearByUsers,
   checkGenreByUser,
+  pictureUpdate,
 };
