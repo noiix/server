@@ -1,4 +1,5 @@
 const Music = require('../models/musicModel')
+const User = require('../models/userModel')
 const fs = require('fs')
 const path = require('path')
 const cloudinary = require('cloudinary').v2;
@@ -42,8 +43,10 @@ const audioUpload = (req, res) => {
                             private: false,
                             }
                     Music.create(musicFile).then((data) => {
-                        res.json(data)}).catch(err => res.json(err))
-                    
+                        User.findOneAndUpdate({_id: data.artist}, {$push: {music: data._id}}).then(() => {
+                            res.json({data, notification: {title: 'You successfully uploaded your song. Well done.', type:'success'}})}).catch(err => res.json(err)) 
+                        })
+                         
                 });
             }
         }
