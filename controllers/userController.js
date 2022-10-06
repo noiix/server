@@ -262,8 +262,8 @@ const profileUpdate = (req, res) => {
 const checkGenreByUser = (req, res) => {
   console.log("req.user: ", req.user);
   User.findOne({ _id: req.user.result._id })
-    .then((response) => {
-      res.json(response);
+    .then((result) => {
+      res.json(result);
     })
     .catch((err) => {
       console.log(err);
