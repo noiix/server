@@ -72,7 +72,7 @@ router.patch("/profile/edit", auth, profileUpdate);
 
 router.get("/all", getNearByUsers);
 
-router.get("/checkgenre", auth, checkGenreByUser);
+router.get("/checkifchecked", auth, checkGenreByUser);
 
 // router.get('/userId/tracks', getAllTracks)
 

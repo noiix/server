@@ -6,7 +6,15 @@ const { sendMail } = require("../models/emailModel");
 const jwt = require("jsonwebtoken");
 const unirest = require("unirest");
 const { validationResult } = require("express-validator");
+const cloudinary = require("cloudinary");
 // const {UpdateLastLocation} = require('./utils/updateLocation')
+
+// cloudinary.config({
+//   cloud_name: process.env.IMG_CLOUDNAME,
+//   api_key: process.env.IMG_APIKEY,
+//   api_secret: process.env.IMG_SECRET,
+//   secure: true
+// });
 
 const createUser = (req, res) => {
   const errors = validationResult(req);
@@ -92,64 +100,83 @@ const emailVerify = (req, res) => {
 
 const login = (req, res) => {
   const errors = validationResult(req);
-  if(!errors.isEmpty()){
-    res.send(errors.array().map(err => err.msg));
-    console.log(errors.array())
-  }else {
+  if (!errors.isEmpty()) {
+    res.send(errors.array().map((err) => err.msg));
+    console.log(errors.array());
+  } else {
     const loginData = req.body;
-  User.findOne({ email: loginData.email }).then((result) => {
-    if (result != null) {
-      if (result.verified === true) {
-        bcrypt.compare(loginData.password, result.password, (err, response) => {
-          if (response) {
-            const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
-              expiresIn: '1h'
-            });
-            const apiCall = unirest(
-              "GET",
-              "https://ip-geo-location.p.rapidapi.com/ip/check"
+    User.findOne({ email: loginData.email })
+      .then((result) => {
+        if (result != null) {
+          if (result.verified === true) {
+            bcrypt.compare(
+              loginData.password,
+              result.password,
+              (err, response) => {
+                if (response) {
+                  const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
+                    expiresIn: "1h",
+                  });
+                  const apiCall = unirest(
+                    "GET",
+                    "https://ip-geo-location.p.rapidapi.com/ip/check"
+                  );
+                  apiCall.headers({
+                    "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
+                    "x-rapidapi-key":
+                      "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
+                  });
+                  apiCall.end(function (location) {
+                    if (res.error) throw new Error(location.error);
+                    User.findOneAndUpdate(
+                      { email: loginData.email },
+                      { location: location.body }
+                    ).then(() => {
+                      console.log("result", result);
+                      res
+                        .cookie("token", token, {
+                          expires: new Date(Date.now() + 172800000),
+                          httpOnly: true,
+                        })
+                        .json({
+                          notification: {
+                            title: "You successfully logged in.",
+                            type: "success",
+                          },
+                          result,
+                        });
+                    });
+                  });
+                } else {
+                  res.json({
+                    notification: {
+                      title: "Password and email do not match.",
+                      type: "error",
+                    },
+                  });
+                }
+              }
             );
-            apiCall.headers({
-              "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
-              "x-rapidapi-key": "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44"
-            });
-            apiCall.end(function(location) {
-              if (res.error) throw new Error(location.error);
-              User.findOneAndUpdate({email: loginData.email}, {location: location.body}).then(() => {
-                console.log('result', result)
-                res
-                .cookie('token', token, {
-                  expires: new Date(Date.now() + 172800000),
-                  httpOnly: true,
-                })
-                .json({
-                  notification: {title: "You successfully logged in.", type: "success"},
-                  result
-                });
-              })
-              
-            });
           } else {
-            res.json({notification:
-              {title: "Password and email do not match.", type: "error"}
+            res.json({
+              notification: {
+                title: "Please, verify your account.",
+                type: "info",
+              },
             });
           }
-        });
-      } else {
-        res.json({notification:
-         { title: "Please, verify your account.", type: "info"}
-        });
-      }
-    } else {
-      res.json({notification:
-        {title: "Please, enter a valid email address.", type: "error"}
-      });
-    }
-  }).catch(err => console.log(err))
+        } else {
+          res.json({
+            notification: {
+              title: "Please, enter a valid email address.",
+              type: "error",
+            },
+          });
+        }
+      })
+      .catch((err) => console.log(err));
   }
-  
 };
-  
 
 const getAllUsers = (req, res) => {
   if (req.user) {
@@ -169,13 +196,13 @@ const getAllMusicByUser = (req, res) => {
 };
 
 const getNearByUsers = (req, res) => {
-  User.find({location: req.user.result.location.city.name})
-  .then(result => {
-    console.log('nearby users', result)
-    res.json(result)
-  })
-  .catch(err => console.log(err))
-}
+  User.find({ location: req.user.result.location.city.name })
+    .then((result) => {
+      console.log("nearby users", result);
+      res.json(result);
+    })
+    .catch((err) => console.log(err));
+};
 
 // const getNearByUsers = async (req, res) => {
 //   try {
@@ -308,7 +335,8 @@ const checkGenreByUser = (req, res) => {
   User.findOne({ _id: req.user.result._id })
     .then((response) => {
       console.log("genre response: ", response);
-      res.json(response.genre);
+      res.json(response);
+      console.log("inst res: ", response.instrument);
     })
     .catch((err) => {
       console.log(err);
@@ -325,5 +353,5 @@ module.exports = {
   googleAuthController,
   profileUpdate,
   getNearByUsers,
-  checkGenreByUser
+  checkGenreByUser,
 };
