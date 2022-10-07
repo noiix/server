@@ -6,12 +6,24 @@ const { sendMail } = require("../models/emailModel");
 const jwt = require("jsonwebtoken");
 const unirest = require("unirest");
 const { validationResult } = require("express-validator");
+const cloudinary = require("cloudinary").v2;
+const { response } = require("express");
+const fs = require("fs");
+const path = require("path");
 // const {UpdateLastLocation} = require('./utils/updateLocation')
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET
+});
 
 const createUser = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    let notification = errors.array().map((err) => ({title: err.msg, type: 'error'}))
+    let notification = errors
+      .array()
+      .map((err) => ({ title: err.msg, type: "error" }));
     res.json(notification);
     console.log(notification);
   } else {
@@ -93,64 +105,83 @@ const emailVerify = (req, res) => {
 
 const login = (req, res) => {
   const errors = validationResult(req);
-  if(!errors.isEmpty()){
-    res.send(errors.array().map(err => err.msg));
-    console.log(errors.array())
-  }else {
+  if (!errors.isEmpty()) {
+    res.send(errors.array().map((err) => err.msg));
+    console.log(errors.array());
+  } else {
     const loginData = req.body;
-  User.findOne({ email: loginData.email }).then((result) => {
-    if (result != null) {
-      if (result.verified === true) {
-        bcrypt.compare(loginData.password, result.password, (err, response) => {
-          if (response) {
-            const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
-              expiresIn: '1h'
-            });
-            const apiCall = unirest(
-              "GET",
-              "https://ip-geo-location.p.rapidapi.com/ip/check"
+    User.findOne({ email: loginData.email })
+      .then((result) => {
+        if (result != null) {
+          if (result.verified === true) {
+            bcrypt.compare(
+              loginData.password,
+              result.password,
+              (err, response) => {
+                if (response) {
+                  const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
+                    expiresIn: "1h",
+                  });
+                  const apiCall = unirest(
+                    "GET",
+                    "https://ip-geo-location.p.rapidapi.com/ip/check"
+                  );
+                  apiCall.headers({
+                    "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
+                    "x-rapidapi-key":
+                      "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
+                  });
+                  apiCall.end(function (location) {
+                    if (res.error) throw new Error(location.error);
+                    User.findOneAndUpdate(
+                      { email: loginData.email },
+                      { location: location.body }
+                    ).then(() => {
+                      console.log("result", result);
+                      res
+                        .cookie("token", token, {
+                          expires: new Date(Date.now() + 172800000),
+                          httpOnly: true,
+                        })
+                        .json({
+                          notification: {
+                            title: "You successfully logged in.",
+                            type: "success",
+                          },
+                          result,
+                        });
+                    });
+                  });
+                } else {
+                  res.json({
+                    notification: {
+                      title: "Password and email do not match.",
+                      type: "error",
+                    },
+                  });
+                }
+              }
             );
-            apiCall.headers({
-              "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
-              "x-rapidapi-key": "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44"
-            });
-            apiCall.end(function(location) {
-              if (res.error) throw new Error(location.error);
-              User.findOneAndUpdate({email: loginData.email}, {location: location.body}).then(() => {
-                console.log('result', result)
-                res
-                .cookie('token', token, {
-                  expires: new Date(Date.now() + 172800000),
-                  httpOnly: true,
-                })
-                .json({
-                  notification: {title: "You successfully logged in.", type: "success"},
-                  result
-                });
-              })
-              
-            });
           } else {
-            res.json({notification:
-              {title: "Password and email do not match.", type: "error"}
+            res.json({
+              notification: {
+                title: "Please, verify your account.",
+                type: "info",
+              },
             });
           }
-        });
-      } else {
-        res.json({notification:
-         { title: "Please, verify your account.", type: "info"}
-        });
-      }
-    } else {
-      res.json({notification:
-        {title: "Please, enter a valid email address.", type: "error"}
-      });
-    }
-  }).catch(err => console.log(err))
+        } else {
+          res.json({
+            notification: {
+              title: "Please, enter a valid email address.",
+              type: "error",
+            },
+          });
+        }
+      })
+      .catch((err) => console.log(err));
   }
-  
 };
-  
 
 const getAllUsers = (req, res) => {
   if (req.user) {
@@ -160,18 +191,28 @@ const getAllUsers = (req, res) => {
   }
 };
 
-
 const getNearByUsers = (req, res) => {
-  const currentLocation = req.user.result.location.city.name
-  const userGenre = req.user.result.genre
-  // console.log('my location: ', currentLocation)
-  User.find({$and: [{"location.city.name": currentLocation}, {genre: {$elemMatch: {$in: userGenre}}} ]}).populate('music')
-  .then(result => {
-    console.log('users with music', result)
-    res.json(result)
-      })
-  .catch(err => console.log(err))
-}
+  const currentLocation = req.user.result.location.city.name;
+  const userGenre = req.user.result.genre;
+  User.find({
+    $and: [
+      { "location.city.name": currentLocation },
+      { genre: { $elemMatch: { $in: userGenre } } },
+    ],
+  })
+    .populate("music")
+    .then((result) => {
+      if(result.length > 0) {
+        console.log("users with music", result);
+        res.json({result});
+      }
+      else {
+        res.json({notification: {title: "Select your favorite genres to see like-minded users nearby!", type: "info"}})
+      }
+     
+    })
+    .catch((err) => console.log(err));
+};
 
 const googleAuthController = (req, res) => {
   let userData = req.body;
@@ -247,7 +288,7 @@ const profileUpdate = (req, res) => {
   const update = {
     username: req.body.username,
     genre: req.body.genre,
-    instrument: req.body.instrument
+    instrument: req.body.instrument,
   };
   console.log("request body: ", update);
 
@@ -262,12 +303,56 @@ const profileUpdate = (req, res) => {
 const checkGenreByUser = (req, res) => {
   console.log("req.user: ", req.user);
   User.findOne({ _id: req.user.result._id })
-    .then((response) => {
-      res.json(response);
+    .then((result) => {
+      res.json(result);
     })
     .catch((err) => {
       console.log(err);
     });
+};
+
+const pictureUpdate = (req, res) => {
+  let fileName = req.file.originalname;
+  let uploadLocation = path.join(__dirname + "/../uploads/" + fileName);
+
+  fs.writeFileSync(
+    uploadLocation,
+    Buffer.from(new Uint8Array(req.file.buffer))
+  );
+
+  cloudinary.uploader.upload(
+    uploadLocation,
+    {
+      resource_type: "image",
+      folder: `images/`,
+      overwrite: true,
+    },
+    (error, result) => {
+      if (error) res.status(500).json(error);
+      else {
+        fs.unlink(uploadLocation, (deleteError) => {
+          if (deleteError) res.status(500).send(deleteError);
+          let resultUrl = result.secure_url;
+          User.findOneAndUpdate(
+            { _id: req.user.result._id },
+            { image: resultUrl }
+          )
+            .then((result) => {
+              res.json({
+                result,
+                notification: {
+                  title: "successfully updated profile picture",
+                  type: "success",
+                },
+              });
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        });
+      }
+    }
+  );
 };
 
 module.exports = {
@@ -279,5 +364,6 @@ module.exports = {
   googleAuthController,
   profileUpdate,
   getNearByUsers,
-  checkGenreByUser
+  checkGenreByUser,
+  pictureUpdate,
 };
