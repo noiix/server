@@ -79,25 +79,8 @@ const userSchema = new Schema({
   }],
   liked_songs: [],
   location: {},
-  // ipInfo: {
-  //   ip: { type: String, default: "" },
-  //   range: { type: Array, default: [] },
-  //   country: { type: String, default: "" },
-  //   region: { type: String, default: "" },
-  //   eu: { type: String, default: "" },
-  //   city: { type: String, default: "" },
-  //   ll: { type: Array },
-  //   metro: Number,
-  //   area: Number,
-  // },
-  // lastLocation: {
-  //   type: pointSchema,
-  //   default: {
-  //     type: "Point",
-  //     coordinates: [0, 0],
-  //   },
-  //   index: "2dsphere",
-  // }
+  music: [{type: Schema.Types.ObjectId,
+    ref: 'Music'}]
 });
 userSchema.pre("save", async function (next) {
   try {

@@ -5,7 +5,6 @@ const {
   createUser,
   emailVerify,
   login,
-  getAllMusicByUser,
   googleAuthController,
   logout,
   profileUpdate,
@@ -64,7 +63,6 @@ router.post(
 );
 
 router.get("/logout", logout);
-// router.get("/all", auth, getAllMusicByUser);
 
 router.post("/googleauth", googleAuthController);
 

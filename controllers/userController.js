@@ -11,8 +11,9 @@ const { validationResult } = require("express-validator");
 const createUser = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    res.send(errors.array().map((err) => err.msg));
-    console.log(errors.array());
+    let notification = errors.array().map((err) => ({title: err.msg, type: 'error'}))
+    res.json(notification);
+    console.log(notification);
   } else {
     const newUser = req.body;
     User.findOne({ email: newUser.email })
@@ -159,23 +160,16 @@ const getAllUsers = (req, res) => {
   }
 };
 
-const getAllMusicByUser = (req, res) => {
-  if (req.user) {
-    Music.find()
-      .populate("artist")
-      .then((result) => res.json(result))
-      .catch((err) => res.json(err));
-  }
-};
 
 const getNearByUsers = (req, res) => {
   const currentLocation = req.user.result.location.city.name
-  console.log('my location: ', currentLocation)
-  User.find({}, {location: currentLocation})
+  const userGenre = req.user.result.genre
+  // console.log('my location: ', currentLocation)
+  User.find({$and: [{"location.city.name": currentLocation}, {genre: {$elemMatch: {$in: userGenre}}} ]}).populate('music')
   .then(result => {
-    console.log('nearby users', result)
+    console.log('users with music', result)
     res.json(result)
-  })
+      })
   .catch(err => console.log(err))
 }
 
@@ -282,7 +276,6 @@ module.exports = {
   login,
   logout,
   getAllUsers,
-  getAllMusicByUser,
   googleAuthController,
   profileUpdate,
   getNearByUsers,
