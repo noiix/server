@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
-const jwt = require('jsonwebtoken')
+
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
@@ -12,13 +12,7 @@ cloudinary.config({
     api_secret: process.env.API_SECRET
 })
 const audioUpload = (req, res) => {
-    // decode jtw token to get currentUser
-    // const decodedUser = jwt.decode(req.user);
-    // console.log(decodedUser);
-    console.log('req.user', req.user)
-    console.log('req.file')
-
-    // save file to upload temporarily in uploads dir
+        // save file to upload temporarily in uploads dir
     let fileName = req.file.originalname;
     console.log('req.file', req.body)
     let uploadLocation = path.join( __dirname + '/../uploads/' + fileName);
@@ -33,7 +27,6 @@ const audioUpload = (req, res) => {
             else {
                 fs.unlink(uploadLocation, (deleteErr) => {
                     if(deleteErr) res.status(500).send(deleteErr);
-                    // res.status(200).json({fileUrl: result.secure_url});
                         let resultUrl = result.secure_url
                         console.log('temp file was deleted');
                         let musicFile = {

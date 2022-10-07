@@ -10,9 +10,12 @@ const {
   profileUpdate,
   getNearByUsers,
   checkGenreByUser,
+  pictureUpdate,
 } = require("../controllers/userController");
 const { body } = require("express-validator");
 const { auth } = require("../middleware/checkLoggedIn");
+const multer = require('multer')
+const upload = multer();
 
 router.get("/", (req, res) => {
   res.json("this is from userRouter");
@@ -67,6 +70,8 @@ router.get("/logout", logout);
 router.post("/googleauth", googleAuthController);
 
 router.patch("/profile/edit", auth, profileUpdate);
+
+router.post("/profile/profilepicture", upload.single('file'), auth, pictureUpdate);
 
 router.get("/all", auth, getNearByUsers);
 
