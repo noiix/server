@@ -355,6 +355,7 @@ const pictureUpdate = (req, res) => {
   );
 };
 
+
 module.exports = {
   createUser,
   emailVerify,
@@ -365,5 +366,5 @@ module.exports = {
   profileUpdate,
   getNearByUsers,
   checkGenreByUser,
-  pictureUpdate,
+  pictureUpdate
 };

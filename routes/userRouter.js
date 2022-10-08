@@ -10,7 +10,8 @@ const {
   profileUpdate,
   getNearByUsers,
   checkGenreByUser,
-  pictureUpdate,
+  pictureUpdate
+
 } = require("../controllers/userController");
 const { body } = require("express-validator");
 const { auth } = require("../middleware/checkLoggedIn");
