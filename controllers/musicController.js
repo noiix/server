@@ -21,7 +21,7 @@ const audioUpload = (req, res) => {
 
     cloudinary.uploader.upload(
         uploadLocation,
-        {resource_type: "raw", folder: `audiofiles/`, overwrite: true},
+        {resource_type: "video", folder: `audiofiles/`, overwrite: true, public_id: fileName},
         (error, result) => {
             if(error) res.status(500).json(error);
             else {
@@ -36,8 +36,8 @@ const audioUpload = (req, res) => {
                             private: false,
                             }
                     Music.create(musicFile).then((data) => {
-                        User.findOneAndUpdate({_id: data.artist}, {$push: {music: data._id}}).then(() => {
-                            res.json({data, notification: {title: 'You successfully uploaded your song. Well done.', type:'success'}})}).catch(err => res.json(err)) 
+                        User.findOneAndUpdate({_id: data.artist}, {$push: {music: data._id}}).then((result) => {
+                            res.json({result, notification: {title: 'You successfully uploaded your song. Well done.', type:'success'}})}).catch(err => res.json(err)) 
                         })
                          
                 });
@@ -46,10 +46,14 @@ const audioUpload = (req, res) => {
     )
 }
 
+
 const getAllMyTracks = (req, res) => {
    Music.find({artist: req.user.result._id})
    .then((musics) => {
-    res.json(musics)
+    if(musics.length > 0) {
+        res.json(musics)
+    }
+     
    })
    .catch(err => res.json(err))
 }
@@ -60,7 +64,6 @@ const getAllTracks = (req, res) => {
         Music.find().then(result => res.json(result)).catch(err => console.log(err))
     }
 }
-
 
 
 module.exports = {getAllTracks, audioUpload, getAllMyTracks}
