@@ -325,6 +325,7 @@ const pictureUpdate = (req, res) => {
     {
       resource_type: "image",
       folder: `images/`,
+      public_id: fileName,
       overwrite: true,
     },
     (error, result) => {

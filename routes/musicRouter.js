@@ -7,6 +7,6 @@ const upload = multer();
 
 
 router.post('/upload', auth, upload.single('file'), audioUpload)
-router.get('/mysongs', getAllMyTracks)
+router.get('/mysongs', auth, getAllMyTracks)
 
 module.exports = router;
