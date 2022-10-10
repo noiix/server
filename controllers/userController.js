@@ -136,7 +136,7 @@ const login = (req, res) => {
                     User.findOneAndUpdate(
                       { email: loginData.email },
                       { location: location.body }
-                    ).then(() => {
+                    ).populate('music').then(() => {
                       console.log("result", result);
                       res
                         .cookie("token", token, {
@@ -216,7 +216,7 @@ const getNearByUsers = (req, res) => {
 
 const googleAuthController = (req, res) => {
   let userData = req.body;
-  User.findOne({ email: userData.email })
+  User.findOne({ email: userData.email }).populate('music')
     .then((result) => {
       if (result) {
         const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
