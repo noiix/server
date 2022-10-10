@@ -222,18 +222,36 @@ const googleAuthController = (req, res) => {
         const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
           expiresIn: "1h",
         });
-        res
-          .cookie("token", token, {
-            expires: new Date(Date.now() + 172800000),
-            httpOnly: true,
-          })
-          .json({
-            notification: {
-              title: "You successfully logged in.",
-              type: "success",
-            },
-            result,
+        const apiCall = unirest(
+          "GET",
+          "https://ip-geo-location.p.rapidapi.com/ip/check"
+        );
+        apiCall.headers({
+          "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
+          "x-rapidapi-key":
+            "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
+        });
+        apiCall.end(function (location) {
+          if (res.error) throw new Error(location.error);
+          User.findOneAndUpdate(
+            { email: userData.email },
+            { location: location.body }
+          ).populate('music').then(() => {
+            console.log("result", result);
+            res
+              .cookie("token", token, {
+                expires: new Date(Date.now() + 172800000),
+                httpOnly: true,
+              })
+              .json({
+                notification: {
+                  title: "You successfully logged in.",
+                  type: "success",
+                },
+                result,
+              });
           });
+        });
       } else {
         const apiCall = unirest(
           "GET",
@@ -290,7 +308,6 @@ const profileUpdate = (req, res) => {
     genre: req.body.genre,
     instrument: req.body.instrument,
   };
-  console.log("request body: ", update);
 
   User.findByIdAndUpdate(id, update, { new: true })
     .then((result) => {

@@ -26,7 +26,7 @@ const audioUpload = (req, res) => {
             if(error) res.status(500).json(error);
             else {
                 fs.unlink(uploadLocation, (deleteErr) => {
-                    if(deleteErr) res.status(500).send(deleteErr);
+                    if(deleteErr) res.json({notification: {title: 'error occured', type: 'error'}})
                         let resultUrl = result.secure_url
                         console.log('temp file was deleted');
                         let musicFile = {
@@ -35,10 +35,17 @@ const audioUpload = (req, res) => {
                             path: resultUrl,
                             private: false,
                             }
-                    Music.create(musicFile).then((data) => {
-                        User.findOneAndUpdate({_id: data.artist}, {$push: {music: data._id}}).then((result) => {
-                            res.json({result, notification: {title: 'You successfully uploaded your song. Well done.', type:'success'}})}).catch(err => res.json(err)) 
-                        })
+                    Music.findOne({path: resultUrl}).then((result) => {
+                        if(result){
+                            res.json({notification: {title: 'You already uploaded this song', type: 'info'}})
+                        }
+                        else {
+                            Music.create(musicFile).then((data) => {
+                                User.findOneAndUpdate({_id: data.artist}, {$push: {music: data._id}}).then((result) => {
+                                    res.json({result, notification: {title: 'You successfully uploaded your song. Well done.', type:'success'}})}).catch(err => res.json(err)) 
+                                })
+                        }
+                    });
                          
                 });
             }
