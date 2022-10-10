@@ -12,45 +12,57 @@ cloudinary.config({
     api_secret: process.env.API_SECRET
 })
 const audioUpload = (req, res) => {
-        // save file to upload temporarily in uploads dir
-    let fileName = req.file.originalname;
-    console.log('req.file', req.body)
-    let uploadLocation = path.join( __dirname + '/../uploads/' + fileName);
-
-    fs.writeFileSync(uploadLocation, Buffer.from(new Uint8Array(req.file.buffer)));
-
-    cloudinary.uploader.upload(
-        uploadLocation,
-        {resource_type: "video", folder: `audiofiles/`, overwrite: true, public_id: fileName},
-        (error, result) => {
-            if(error) res.status(500).json(error);
-            else {
-                fs.unlink(uploadLocation, (deleteErr) => {
-                    if(deleteErr) res.json({notification: {title: 'error occured', type: 'error'}})
-                        let resultUrl = result.secure_url
-                        console.log('temp file was deleted');
-                        let musicFile = {
-                            artist: req.user.result._id,
-                            title: req.body.title,
-                            path: resultUrl,
-                            private: false,
-                            }
-                    Music.findOne({path: resultUrl}).then((result) => {
-                        if(result){
-                            res.json({notification: {title: 'You already uploaded this song', type: 'info'}})
-                        }
-                        else {
-                            Music.create(musicFile).then((data) => {
-                                User.findOneAndUpdate({_id: data.artist}, {$push: {music: data._id}}).then((result) => {
-                                    res.json({result, notification: {title: 'You successfully uploaded your song. Well done.', type:'success'}})}).catch(err => res.json(err)) 
-                                })
-                        }
-                    });
-                         
-                });
-            }
+    User.findById(req.user.result._id).then(info => {
+        if(info.music.length > 2) {
+            res.json({notification: {title: 'You can have maximum three songs on your profile', type: 'error'}})
         }
-    )
+        else {
+            let fileName = req.file.originalname;
+            console.log('req.file', req.body)
+            let uploadLocation = path.join( __dirname + '/../uploads/' + fileName);
+        
+            fs.writeFileSync(uploadLocation, Buffer.from(new Uint8Array(req.file.buffer)));
+        
+            cloudinary.uploader.upload(
+                uploadLocation,
+                {resource_type: "video", folder: `audiofiles/`, overwrite: true, public_id: fileName},
+                (error, result) => {
+                    if(error) res.status(500).json(error);
+                    else {
+                        fs.unlink(uploadLocation, (deleteErr) => {
+                            if(deleteErr) res.json({notification: {title: 'error ocurred', type: 'error'}})
+                                let resultUrl = result.secure_url
+                                console.log('temp file was deleted');
+                                let musicFile = {
+                                    artist: req.user.result._id,
+                                    title: req.body.title,
+                                    public_id: fileName,
+                                    path: resultUrl,
+                                    private: false,
+                                    }
+                                    Music.create(musicFile).then((data) => {
+                                        User.findOneAndUpdate({_id: data.artist}, {$push: {music: data._id}}, {new: true}).populate('music').then((result) => {
+                                            res.json({result, notification: {title: 'You successfully uploaded your song. Well done.', type:'success'}})}).catch(err => res.json(err)) 
+                                        })        
+                        });
+                    }
+                }
+            )
+        }
+    })
+    
+}
+
+const deleteTrack = (req, res) => {
+    const songObj = req.body;
+    console.log('song object', songObj)
+    cloudinary.uploader.destroy(`audiofiles/${songObj.deleteSong.public_id}`, {"resource_type": "video"})
+    User.findOneAndUpdate({_id: req.user.result._id}, {music: songObj.newSongList}, {new: true}).populate('music')
+    .then(result => {
+        Music.findByIdAndDelete(songObj.deleteSong._id).then(() => {
+            res.json({result, notification: {title: 'You deleted one song', type: 'success'}})
+        })
+    }).catch()
 }
 
 
@@ -73,4 +85,4 @@ const getAllTracks = (req, res) => {
 }
 
 
-module.exports = {getAllTracks, audioUpload, getAllMyTracks}
+module.exports = {getAllTracks, audioUpload, getAllMyTracks, deleteTrack}

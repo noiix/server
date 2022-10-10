@@ -67,7 +67,7 @@ router.post(
 
 router.get("/logout", logout);
 
-router.post("/googleauth", auth, googleAuthController);
+router.post("/googleauth", googleAuthController);
 
 router.patch("/profile/edit", auth, profileUpdate);
 
