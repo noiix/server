@@ -353,7 +353,7 @@ const pictureUpdate = (req, res) => {
           let resultUrl = result.secure_url;
           User.findOneAndUpdate(
             { _id: req.user.result._id },
-            { image: resultUrl }
+            { image: resultUrl }, {new: true}
           )
             .then((result) => {
               res.json({
