@@ -309,7 +309,7 @@ const profileUpdate = (req, res) => {
     instrument: req.body.instrument,
   };
 
-  User.findByIdAndUpdate(id, update, { new: true })
+  User.findByIdAndUpdate(id, update, { new: true }).populate('music')
     .then((result) => {
       res.json(result);
       console.log("update result!: ", result);
