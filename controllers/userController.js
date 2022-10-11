@@ -136,7 +136,7 @@ const login = (req, res) => {
                     User.findOneAndUpdate(
                       { email: loginData.email },
                       { location: location.body }
-                    ).then(() => {
+                    ).populate('music').then(() => {
                       console.log("result", result);
                       res
                         .cookie("token", token, {
@@ -216,24 +216,42 @@ const getNearByUsers = (req, res) => {
 
 const googleAuthController = (req, res) => {
   let userData = req.body;
-  User.findOne({ email: userData.email })
+  User.findOne({ email: userData.email }).populate('music')
     .then((result) => {
       if (result) {
         const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
           expiresIn: "1h",
         });
-        res
-          .cookie("token", token, {
-            expires: new Date(Date.now() + 172800000),
-            httpOnly: true,
-          })
-          .json({
-            notification: {
-              title: "You successfully logged in.",
-              type: "success",
-            },
-            result,
+        const apiCall = unirest(
+          "GET",
+          "https://ip-geo-location.p.rapidapi.com/ip/check"
+        );
+        apiCall.headers({
+          "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
+          "x-rapidapi-key":
+            "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
+        });
+        apiCall.end(function (location) {
+          if (res.error) throw new Error(location.error);
+          User.findOneAndUpdate(
+            { email: userData.email },
+            { location: location.body }
+          ).populate('music').then(() => {
+            console.log("result", result);
+            res
+              .cookie("token", token, {
+                expires: new Date(Date.now() + 172800000),
+                httpOnly: true,
+              })
+              .json({
+                notification: {
+                  title: "You successfully logged in.",
+                  type: "success",
+                },
+                result,
+              });
           });
+        });
       } else {
         const apiCall = unirest(
           "GET",
@@ -290,7 +308,6 @@ const profileUpdate = (req, res) => {
     genre: req.body.genre,
     instrument: req.body.instrument,
   };
-  console.log("request body: ", update);
 
   User.findByIdAndUpdate(id, update, { new: true })
     .then((result) => {
@@ -336,7 +353,7 @@ const pictureUpdate = (req, res) => {
           let resultUrl = result.secure_url;
           User.findOneAndUpdate(
             { _id: req.user.result._id },
-            { image: resultUrl }
+            { image: resultUrl }, {new: true}
           )
             .then((result) => {
               res.json({
