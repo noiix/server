@@ -136,7 +136,7 @@ const login = (req, res) => {
                     User.findOneAndUpdate(
                       { email: loginData.email },
                       { location: location.body }
-                    ).populate('music').then((info) => {
+                    ).populate('music').populate('liked_songs').then((info) => {
                       console.log("result", result);
                       res
                         .cookie("token", token, {
@@ -216,7 +216,7 @@ const getNearByUsers = (req, res) => {
 
 const googleAuthController = (req, res) => {
   let userData = req.body;
-  User.findOne({ email: userData.email }).populate('music')
+  User.findOne({ email: userData.email }).populate('music').populate('liked_songs')
     .then((result) => {
       if (result) {
         const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
@@ -236,7 +236,7 @@ const googleAuthController = (req, res) => {
           User.findOneAndUpdate(
             { email: userData.email },
             { location: location.body }
-          ).populate('music').then(() => {
+          ).populate('music').populate('liked_songs').then(() => {
             console.log("result", result);
             res
               .cookie("token", token, {
@@ -309,7 +309,7 @@ const profileUpdate = (req, res) => {
     instrument: req.body.instrument,
   };
 
-  User.findByIdAndUpdate(id, update, { new: true }).populate('music')
+  User.findByIdAndUpdate(id, update, { new: true }).populate('music').populate('liked_songs')
     .then((result) => {
       res.json(result);
       console.log("update result!: ", result);
@@ -354,7 +354,7 @@ const pictureUpdate = (req, res) => {
           User.findOneAndUpdate(
             { _id: req.user.result._id },
             { image: resultUrl }, {new: true}
-          ).populate('music')
+          ).populate('music').populate('liked_songs')
             .then((result) => {
               res.json({
                 result,
@@ -372,6 +372,24 @@ const pictureUpdate = (req, res) => {
     }
   );
 };
+
+const addToLikedSongs = (req, res) => {
+  const songToLike = req.body
+  User.findById(req.user.result._id).then(result => {
+    if(!result.liked_songs.includes(songToLike._id)) {
+      User.findByIdAndUpdate(req.user.result._id, {$push: {liked_songs: songToLike._id}}, {new: true}).populate('liked_songs').populate('music').then(data => {
+        console.log('updated user', data)
+        res.json({data, notification: {title: 'You added a new favorite song.', type: 'success'}})
+      })
+    }
+    else {
+      User.findByIdAndUpdate(req.user.result._id, {$pull: {liked_songs: songToLike._id}}, {new: true}).populate('liked_songs').populate('music').then(data => {
+        console.log('delete user updated', data)
+        res.json({data, notification: {title: 'You deleted a favorite song.', type: 'success'}})
+      })
+    }
+  })
+}
 
 const introTextUpdate = (req, res) => {
   let newText = req.body;
@@ -404,5 +422,6 @@ module.exports = {
   getNearByUsers,
   checkGenreByUser,
   pictureUpdate,
+  addToLikedSongs,
   introTextUpdate
 };
