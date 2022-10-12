@@ -391,6 +391,26 @@ const addToLikedSongs = (req, res) => {
   })
 }
 
+const introTextUpdate = (req, res) => {
+  let newText = req.body;
+  console.log('newText', req.body);
+  User.findByIdAndUpdate(req.user.result._id, newText, {new: true})
+  .populate('music')
+            .then((result) => {
+              res.json({
+                result,
+                notification: {
+                  title: "successfully updated your info text",
+                  type: "success",
+                },
+              });
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+}
+
+
 module.exports = {
   createUser,
   emailVerify,
@@ -402,5 +422,6 @@ module.exports = {
   getNearByUsers,
   checkGenreByUser,
   pictureUpdate,
-  addToLikedSongs
+  addToLikedSongs,
+  introTextUpdate
 };

@@ -11,7 +11,8 @@ const {
   getNearByUsers,
   checkGenreByUser,
   pictureUpdate,
-  addToLikedSongs
+  addToLikedSongs,
+  introTextUpdate
 } = require("../controllers/userController");
 const { body } = require("express-validator");
 const { auth } = require("../middleware/checkLoggedIn");
@@ -79,6 +80,7 @@ router.get("/all", auth, getNearByUsers);
 router.get("/checkifchecked", auth, checkGenreByUser);
 
 router.patch('/likesong', auth, addToLikedSongs)
+router.patch("/profile/text", auth, introTextUpdate);
 
 // router.get('/userId/tracks', getAllTracks)
 
