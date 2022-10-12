@@ -11,6 +11,7 @@ const {
   getNearByUsers,
   checkGenreByUser,
   pictureUpdate,
+  introTextUpdate,
 } = require("../controllers/userController");
 const { body } = require("express-validator");
 const { auth } = require("../middleware/checkLoggedIn");
@@ -76,6 +77,8 @@ router.post("/profile/profilepicture", upload.single('file'), auth, pictureUpdat
 router.get("/all", auth, getNearByUsers);
 
 router.get("/checkifchecked", auth, checkGenreByUser);
+
+router.patch("/profile/text", auth, introTextUpdate);
 
 // router.get('/userId/tracks', getAllTracks)
 
