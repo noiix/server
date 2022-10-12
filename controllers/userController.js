@@ -136,7 +136,7 @@ const login = (req, res) => {
                     User.findOneAndUpdate(
                       { email: loginData.email },
                       { location: location.body }
-                    ).populate('music').then(() => {
+                    ).populate('music').then((info) => {
                       console.log("result", result);
                       res
                         .cookie("token", token, {
@@ -148,7 +148,7 @@ const login = (req, res) => {
                             title: "You successfully logged in.",
                             type: "success",
                           },
-                          result,
+                          info,
                         });
                     });
                   });
@@ -354,7 +354,7 @@ const pictureUpdate = (req, res) => {
           User.findOneAndUpdate(
             { _id: req.user.result._id },
             { image: resultUrl }, {new: true}
-          )
+          ).populate('music')
             .then((result) => {
               res.json({
                 result,
