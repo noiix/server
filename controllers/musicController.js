@@ -52,8 +52,15 @@ const audioUpload = (req, res) => {
             }
         
     }).catch(err => {
-        res.json({notification: {title: err, type: 'error'}})
-        console.log(notification)
+        if(err.name === "ValidationError"){
+            let errors = {};
+            Object.keys(err.errors).forEach((key) => {
+                errors[key] = error.errors[key].message;
+            });
+
+            return res.json({notification: errors});
+        }
+        res.json({notification: {title: err.errors, type: 'error'}})
     })
    
     
