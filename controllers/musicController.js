@@ -60,7 +60,7 @@ const audioUpload = (req, res) => {
 
             return res.json({notification: errors});
         }
-        res.json({notification: {title: err.errors.message, type: 'error'}})
+        res.json({notification: {title: err.errors, type: 'error'}})
     })
    
     
