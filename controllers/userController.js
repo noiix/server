@@ -410,6 +410,15 @@ const introTextUpdate = (req, res) => {
             });
 }
 
+const removeFromLikedSongs = (req, res) => {
+  let song = req.body
+
+   User.findByIdAndUpdate(req.user.result._id, {$pull: {liked_songs: song._id}}, {new: true}).populate('liked_songs').populate('music').then(data => {
+   res.json({data, notification: {title: 'You deleted a favorite song.', type: 'success'}})
+  })
+    
+  
+}
 
 module.exports = {
   createUser,
@@ -423,5 +432,6 @@ module.exports = {
   checkGenreByUser,
   pictureUpdate,
   addToLikedSongs,
-  introTextUpdate
+  introTextUpdate,
+  removeFromLikedSongs
 };
