@@ -17,7 +17,7 @@ const userSchema = new Schema({
     type: String,
   },
   verified: { type: Boolean, default: false },
-  image: { type: String, default: "" },
+  image: { type: String, default: "https://res.cloudinary.com/noix/image/upload/v1665502236/images/defaultProfile_ppkokd.png" },
   createdAt: { type: Date },
   genre: [
     {
@@ -64,7 +64,9 @@ const userSchema = new Schema({
       "harp",
     ],
   }],
-  liked_songs: [],
+  liked_songs: [{type: Schema.Types.ObjectId,
+    ref: 'Music'}],
+  intro_text: {type: String},
   location: {},
   music: [{type: Schema.Types.ObjectId,
     ref: 'Music'}]
