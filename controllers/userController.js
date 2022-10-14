@@ -395,7 +395,7 @@ const introTextUpdate = (req, res) => {
   let newText = req.body;
   console.log('newText', req.body);
   User.findByIdAndUpdate(req.user.result._id, newText, {new: true})
-  .populate('music')
+  .populate('music').populate('liked_songs')
             .then((result) => {
               res.json({
                 result,
