@@ -7,7 +7,7 @@ const musicSchema = new Schema({
         ref: 'User', required: true},
     title: {type: String, required: [true, 'title is required']},
     public_id: {type: String},
-    path: {type: String, required: true, unique: true},
+    path: {type: String, required: true},
     private: {type: Boolean},
 })
 
