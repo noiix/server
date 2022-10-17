@@ -69,8 +69,11 @@ const userSchema = new Schema({
   intro_text: {type: String},
   location: {},
   music: [{type: Schema.Types.ObjectId,
-    ref: 'Music'}]
+    ref: 'Music'}],
+  contacts: [{type: Schema.Types.ObjectId,
+    ref: 'User'}]
 });
+
 userSchema.pre("save", async function (next) {
   try {
     if (this.password) {

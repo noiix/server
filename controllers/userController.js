@@ -281,7 +281,7 @@ const googleAuthController = (req, res) => {
                     title: "You successfully logged in.",
                     type: "success",
                   },
-                  result,
+                  result
                 });
             })
             .catch((err) => console.log(err));
@@ -416,8 +416,25 @@ const removeFromLikedSongs = (req, res) => {
    User.findByIdAndUpdate(req.user.result._id, {$pull: {liked_songs: song._id}}, {new: true}).populate('liked_songs').populate('music').then(data => {
    res.json({data, notification: {title: 'You deleted a favorite song.', type: 'success'}})
   })
-    
-  
+}
+
+const getAllMyContacts = (req, res) => {
+  User.findById(req.user.result._id).populate('music').populate('liked_songs')
+  .then(result => {
+    res.json(result)
+  })
+}
+
+const addContact = (req, res) => {
+  const contact = req.body;
+  User.findById(req.user.result._id).then(result => {
+    if(!result.contacts.includes(contact.contactId)) {
+      User.findByIdAndUpdate(req.user.result._id, {$push: {contacts: contact.contactId}}, {new: true}).populate('liked_songs').populate('music').populate('contacts').then(data => {
+        console.log('updated user', data)
+        res.json({data, notification: {title: 'You added a new contact.', type: 'success'}})
+      })
+    }
+  })
 }
 
 module.exports = {
@@ -433,5 +450,7 @@ module.exports = {
   pictureUpdate,
   addToLikedSongs,
   introTextUpdate,
-  removeFromLikedSongs
+  removeFromLikedSongs,
+  getAllMyContacts,
+  addContact
 };
