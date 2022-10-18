@@ -13,8 +13,9 @@ const {
   pictureUpdate,
   addToLikedSongs,
   introTextUpdate,
-  getArtistNameById,
-  removeFromLikedSongs
+  removeFromLikedSongs,
+  getAllMyContacts,
+  addContact
 } = require("../controllers/userController");
 const { body } = require("express-validator");
 const { auth } = require("../middleware/checkLoggedIn");
@@ -82,10 +83,14 @@ router.get("/all", auth, getNearByUsers);
 router.get("/checkifchecked", auth, checkGenreByUser);
 
 router.patch('/likesong', auth, addToLikedSongs)
+
 router.patch('/dislike', auth, removeFromLikedSongs)
 
 router.patch("/profile/text", auth, introTextUpdate);
 
+router.get('/contacts', auth, getAllMyContacts)
+
+router.patch('/addcontact', auth, addContact)
 
 // router.get('/userId/tracks', getAllTracks)
 

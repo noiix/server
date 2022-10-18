@@ -85,7 +85,6 @@ const getAllMyTracks = (req, res) => {
     if(musics.length > 0) {
         res.json(musics)
     }
-     
    })
    .catch(err => res.json(err))
 }
