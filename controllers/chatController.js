@@ -55,6 +55,7 @@ const accessChat = asyncHandler(async (req, res) => {
   }
 })
 
+
 const fetchChats = asyncHandler(async(req, res) => {
   try {
     Chat.find({users: {$elemMatch: {$eq: req.user.result._id}}})
