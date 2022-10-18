@@ -71,7 +71,9 @@ const userSchema = new Schema({
   music: [{type: Schema.Types.ObjectId,
     ref: 'Music'}],
   contacts: [{type: Schema.Types.ObjectId,
-    ref: 'User'}]
+    ref: 'User'}],
+}, {timestamps: 
+  true
 });
 
 userSchema.pre("save", async function (next) {

@@ -27,6 +27,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.0.2",
     "express": "^4.18.1",
+    "express-async-handler": "^1.2.0",
     "express-ip": "^1.0.4",
     "express-session": "^1.17.3",
     "express-validator": "^6.14.2",
