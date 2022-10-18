@@ -19,7 +19,7 @@ const connect = () => {
       socket.on(messageInfo.to).emit("messageFromServer", messageInfo);
     });
 
-    io.ermit("user", socket.handshake.query.userName);
+    io.emit("user", socket.handshake.query.userName);
   });
 };
 
