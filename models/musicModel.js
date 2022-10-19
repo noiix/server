@@ -8,6 +8,7 @@ const musicSchema = new Schema({
     title: {type: String, required: [true, 'title is required']},
     public_id: {type: String},
     path: {type: String, required: true},
+    duration: {type: Number},
     private: {type: Boolean},
 })
 
