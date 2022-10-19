@@ -78,7 +78,7 @@ const server = app.listen(PORT, () => {
 const io = require("socket.io")(server, {
   pingTimeout: 6000,
   cors: {
-    origin: "http://localhost:3000"
+    origin: "*"
   }
 })
 
@@ -103,7 +103,7 @@ io.on("connection", (socket) => {
 
     chat.users.forEach(user => {
       if(user._id === newMessageReceived.sender._id) return;
-      socket.in(user._id).emit('message received', newMessageReceived);
-  })
+      socket.in(user._id).emit('message', newMessageReceived);
+    })
   })
 })
