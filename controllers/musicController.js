@@ -26,7 +26,7 @@ const audioUpload = (req, res) => {
             
                 cloudinary.uploader.upload(
                     uploadLocation,
-                    {resource_type: "video", folder: `audiofiles/`, overwrite: true, public_id: fileName},
+                    {resource_type: "video", folder: `audiofiles/`, overwrite: true, public_id: fileName, video_metadata: true},
                     (error, result) => {
                         if(error) res.status(500).json(error);
                         else {
@@ -85,7 +85,6 @@ const getAllMyTracks = (req, res) => {
     if(musics.length > 0) {
         res.json(musics)
     }
-     
    })
    .catch(err => res.json(err))
 }
