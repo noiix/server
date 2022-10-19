@@ -203,7 +203,7 @@ const getNearByUsers = (req, res) => {
     .populate("music")
     .then((result) => {
       if(result.length > 0) {
-        console.log("users with music", result);
+        // console.log("users with music", result);
         res.json({result});
       }
       else {
@@ -237,7 +237,7 @@ const googleAuthController = (req, res) => {
             { email: userData.email },
             { location: location.body }
           ).populate('music').populate('liked_songs').then(() => {
-            console.log("result", result);
+            // console.log("result", result);
             res
               .cookie("token", token, {
                 expires: new Date(Date.now() + 172800000),
@@ -264,7 +264,7 @@ const googleAuthController = (req, res) => {
         });
         apiCall.end(function (location) {
           if (res.error) throw new Error(location.error);
-          console.log(location.body);
+          // console.log(location.body);
           userData.location = location.body;
           User.create(userData)
             .then((result) => {
@@ -312,7 +312,7 @@ const profileUpdate = (req, res) => {
   User.findByIdAndUpdate(id, update, { new: true }).populate('music').populate('liked_songs')
     .then((result) => {
       res.json(result);
-      console.log("update result!: ", result);
+      // console.log("update result!: ", result);
     })
     .catch((err) => console.log(err));
 };
@@ -378,13 +378,13 @@ const addToLikedSongs = (req, res) => {
   User.findById(req.user.result._id).then(result => {
     if(!result.liked_songs.includes(songToLike._id)) {
       User.findByIdAndUpdate(req.user.result._id, {$push: {liked_songs: songToLike._id}}, {new: true}).populate('liked_songs').populate('music').then(data => {
-        console.log('updated user', data)
+        // console.log('updated user', data)
         res.json({data, notification: {title: 'You added a new favorite song.', type: 'success'}})
       })
     }
     else {
       User.findByIdAndUpdate(req.user.result._id, {$pull: {liked_songs: songToLike._id}}, {new: true}).populate('liked_songs').populate('music').then(data => {
-        console.log('delete user updated', data)
+        // console.log('delete user updated', data)
         res.json({data, notification: {title: 'You deleted a favorite song.', type: 'success'}})
       })
     }
@@ -430,7 +430,7 @@ const addContact = (req, res) => {
   User.findById(req.user.result._id).then(result => {
     if(!result.contacts.includes(contact.contactId)) {
       User.findByIdAndUpdate(req.user.result._id, {$push: {contacts: contact.contactId}}, {new: true}).populate('liked_songs').populate('music').populate('contacts').then(data => {
-        console.log('updated user', data)
+        // console.log('updated user', data)
         res.json({data, notification: {title: 'You added a new contact.', type: 'success'}})
       })
     }

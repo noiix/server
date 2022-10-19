@@ -8,13 +8,14 @@ require("./connections/userDB");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const morgan = require('morgan');
+const logger = morgan('tiny');
 const userRouter = require("./routes/userRouter");
 const musicRouter = require("./routes/musicRouter");
 const chatRouter = require("./routes/chatRouter");
 const messageRouter = require('./routes/messageRouter');
 const errorController = require("./controllers/errorController");
-// const proxy = require('http-proxy-middleware')
-
+// const { logError } = require("./errorHandler");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -47,6 +48,12 @@ app.use("/music", musicRouter);
 app.use("/chat", chatRouter);
 app.use("/messages", messageRouter);
 
+// Dilshods example
+// app.use((err,req,res,next)=>{
+//   res.json(err)
+// })
+
+// app.use(logError)
 
 // server listen
 
@@ -68,30 +75,35 @@ const server = app.listen(PORT, () => {
 });
 
 
-// const io = require("socket.io")(server, {
-  
-//   pingTimeout: 60000,
-//   cors: {
-//     origin: "http://localhost:3000",
-//   },
-// });
+const io = require("socket.io")(server, {
+  pingTimeout: 6000,
+  cors: {
+    origin: "http://localhost:3000"
+  }
+})
 
-// io.on("connection", (socket) => {
-//   console.log("User connected");
-//   console.log(socket.handshake.query.userName);
+io.on("connection", (socket) => {
+  console.log("connected to socket.io");
 
-//   socket.join(socket.handshake.query.userName);
+  socket.on('setup', (userData) => {
+    socket.join(userData._id)
+    socket.emit('connected');
+    // console.log(userData._id)
+  });
 
-//   // socket.on('userMessage', messageInfo => {
-//   //     console.log(messageInfo)
+  socket.on('join chat', (room) => {
+    socket.join(room)
+    console.log("user joined room: " + room)
+  });
 
-//   //     io.emit('messageFromSender', messageInfo)
-//   // })
+  socket.on('new message', (newMessageReceived) => {
+    let chat = newMessageReceived.chat;
 
-//   socket.on("receivingUser", (messageInfo) => {
-//     console.log(messageInfo);
-//     socket.on(messageInfo.to).emit("messageFromServer", messageInfo);
-//   });
+    if(!chat.users) return console.log("chat.users not defined")
 
-//   io.emit("user", socket.handshake.query.userName);
-// });
+    chat.users.forEach(user => {
+      // if(user._id === newMessageReceived.sender._id) return;
+      socket.in(user._id).emit('message received', newMessageReceived);
+  })
+  })
+})
