@@ -48,28 +48,6 @@ app.use("/music", musicRouter);
 app.use("/chat", chatRouter);
 app.use("/messages", messageRouter);
 
-// Dilshods example
-// app.use((err,req,res,next)=>{
-//   res.json(err)
-// })
-
-// app.use(logError)
-
-// server listen
-
-// const socketProxy= createProxyMiddleware('/socket', {
-//   target: 'http://localhost:5001',
-//   changeOrigin: true,
-//   ws: true, 
-//   logLevel: 'debug',
-// });
-
-// app.use(proxy('/socket.io', {
-//   target: 'http://localhost:5001',
-//   ws: true
-// }));
-
-
 const server = app.listen(PORT, () => {
   console.log("listening on port " + PORT);
 });
@@ -114,3 +92,25 @@ io.on("connection", (socket) => {
     socket.leave(userData._id);
   })
 })
+
+
+// Dilshods example
+// app.use((err,req,res,next)=>{
+//   res.json(err)
+// })
+
+// app.use(logError)
+
+// server listen
+
+// const socketProxy= createProxyMiddleware('/socket', {
+//   target: 'http://localhost:5001',
+//   changeOrigin: true,
+//   ws: true, 
+//   logLevel: 'debug',
+// });
+
+// app.use(proxy('/socket.io', {
+//   target: 'http://localhost:5001',
+//   ws: true
+// }));

@@ -26,19 +26,20 @@ const audioUpload = (req, res) => {
             
                 cloudinary.uploader.upload(
                     uploadLocation,
-                    {resource_type: "video", folder: `audiofiles/`, overwrite: true, public_id: fileName},
+                    {resource_type: "video", folder: `audiofiles/`, overwrite: true, public_id: fileName, image_metadata: true},
                     (error, result) => {
                         if(error) res.status(500).json(error);
                         else {
                             fs.unlink(uploadLocation, (deleteErr) => {
                                 if(deleteErr) res.json({notification: {title: 'error ocurred', type: 'error'}})
                                     let resultUrl = result.secure_url
-                                    console.log('temp file was deleted');
+                                    console.log('temp file was deleted', result.duration);
                                     let musicFile = {
                                         artist: req.user.result._id,
                                         title: req.body.title,
                                         public_id: fileName,
                                         path: resultUrl,
+                                        duration: result.duration,
                                         private: false,
                                         }
                                         Music.create(musicFile).then((data) => {
