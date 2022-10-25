@@ -43,5 +43,10 @@ const allMessages = asyncHandler(async (req, res) => {
     }
 })
 
+const setMessageToRead = (req, res) => {
+    const chat = req.body;
+     Message.updateMany({chat: chat.chatId}, {read: true}, {new: true}).populate('sender', 'username image email').populate('chat').then(result => res.json(result))
+}
 
-module.exports = {sendMessage, allMessages}
+
+module.exports = {sendMessage, allMessages, setMessageToRead}
