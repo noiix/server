@@ -7,9 +7,7 @@ const messageSchema = new Schema({
         ref: 'User', required: true},
     content: {type: String, required: [true, 'content is required']},
     chat: {type: Schema.Types.ObjectId, ref: 'Chat'}, 
-    read: {type: Boolean}
+    read: {type: Boolean, default: false}
 })
 
 const Message = mongoose.model('Message', messageSchema)
-
-module.exports = Message;
