@@ -10,4 +10,6 @@ const messageSchema = new Schema({
     read: {type: Boolean, default: false}
 })
 
-const Message = mongoose.model('Message', messageSchema)
+const Message = mongoose.model('Message', messageSchema);
+
+module.exports = Message;

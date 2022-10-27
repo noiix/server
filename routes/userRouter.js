@@ -15,7 +15,8 @@ const {
   introTextUpdate,
   removeFromLikedSongs,
   getAllMyContacts,
-  addContact
+  addContact,
+  profileUpdateName
 } = require("../controllers/userController");
 const { body } = require("express-validator");
 const { auth } = require("../middleware/checkLoggedIn");
@@ -75,6 +76,8 @@ router.get("/logout", logout);
 router.post("/googleauth",  googleAuthController);
 
 router.patch("/profile/edit", auth, profileUpdate);
+
+router.patch("/profile/editname", auth, profileUpdateName)
 
 router.post("/profile/profilepicture", upload.single('file'), auth, pictureUpdate);
 

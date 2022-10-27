@@ -193,6 +193,7 @@ const getAllUsers = (req, res) => {
 
 const getNearByUsers = (req, res) => {
   const currentLocation = req.user.result.location.city.name;
+  // console.log(currentLocation)
   const userGenre = req.user.result.genre;
   User.find({
     $and: [
@@ -202,7 +203,7 @@ const getNearByUsers = (req, res) => {
   })
     .populate("music")
     .then((result) => {
-      if(result.length > 0) {
+      if(result && result.length > 0) {
         // console.log("users with music", result);
         res.json({result});
       }
@@ -304,7 +305,7 @@ const profileUpdate = (req, res) => {
   const id = req.user.result._id;
   console.log("userid: ", req.user.result._id);
   const update = {
-    username: req.body.username,
+    // username: req.body.username,
     genre: req.body.genre,
     instrument: req.body.instrument,
   };
@@ -316,6 +317,19 @@ const profileUpdate = (req, res) => {
     })
     .catch((err) => console.log(err));
 };
+
+const profileUpdateName = (req, res) => {
+  const id = req.user.result._id;
+  const name = {
+    username: req.body.username
+  }
+  console.log('name update:', name)
+  User.findByIdAndUpdate(id, name, {new: true}).populate('music').populate('liked_songs')
+  .then((result) => {
+    res.json(result)
+  }).catch(err => console.log(err))
+}
+
 
 const checkGenreByUser = (req, res) => {
   console.log("req.user: ", req.user);
@@ -452,5 +466,6 @@ module.exports = {
   introTextUpdate,
   removeFromLikedSongs,
   getAllMyContacts,
-  addContact
+  addContact,
+  profileUpdateName
 };
