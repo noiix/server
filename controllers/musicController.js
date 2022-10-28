@@ -100,7 +100,7 @@ const getAllTracks = (req, res) => {
 const getAllMyFavorites = (req, res) => {
   User.findById(req.user.result._id).populate('liked_songs')
   .then(result => {
-    if(result.liked_songs.length > 0) {
+    if(result && result.liked_songs.length > 0) {
         res.json(result)
     } 
   })
