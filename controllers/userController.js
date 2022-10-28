@@ -10,7 +10,6 @@ const cloudinary = require("cloudinary").v2;
 const { response } = require("express");
 const fs = require("fs");
 const path = require("path");
-// const {UpdateLastLocation} = require('./utils/updateLocation')
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -57,7 +56,7 @@ const createUser = (req, res) => {
                 }
               })
               .then((result) =>
-                res.json({
+                res.status(200).json({
                   notification: {
                     title: "Please, check your email to verify your account.",
                     type: "info",
@@ -104,6 +103,7 @@ const emailVerify = (req, res) => {
 };
 
 const login = (req, res) => {
+  console.log('login controller')
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.send(errors.array().map((err) => err.msg));
@@ -143,6 +143,7 @@ const login = (req, res) => {
                           expires: new Date(Date.now() + 172800000),
                           httpOnly: true,
                         })
+                        .status(200)
                         .json({
                           notification: {
                             title: "You successfully logged in.",
@@ -183,39 +184,39 @@ const login = (req, res) => {
   }
 };
 
-const getAllUsers = (req, res) => {
-  if (req.user) {
-    User.find()
-      .then((result) => res.json(result))
-      .catch((err) => res.json(err));
-  }
-};
+// const getAllUsers = (req, res) => {
+//   if (req.user) {
+//     User.find()
+//       .then((result) => res.json(result))
+//       .catch((err) => res.json(err));
+//   }
+// };
 
 const getNearByUsers = (req, res) => {
-  const currentLocation = req.user.result.location.city.name;
-  // console.log(currentLocation)
-  const userGenre = req.user.result.genre;
-  User.find({
-    $and: [
-      { "location.city.name": currentLocation },
-      { genre: { $elemMatch: { $in: userGenre } } },
-    ],
-  })
-    .populate("music")
-    .then((result) => {
-      if(result && result.length > 0) {
-        // console.log("users with music", result);
-        res.json({result});
-      }
-      else {
-        res.json({notification: {title: "Select your favorite genres to see like-minded users nearby!", type: "info"}})
-      }
-     
+  User.findById(req.user.result._id).then(result => {
+    User.find({
+      $and: [
+        { "location.city.name": result.location.city.name },
+        { genre: { $elemMatch: { $in: result.genre } } },
+      ],
     })
-    .catch((err) => console.log(err));
+      .populate("music")
+      .then((result) => {
+        if(result && result.length > 0) {
+          console.log("users with music", result);
+          res.status(200).json({result});
+        }
+        else {
+          res.json({result, notification: {title: "Select your favorite genres to see like-minded users nearby!", type: "info"}})
+        }
+      })
+      .catch((err) => console.log(err));
+  })
+  
 };
 
 const googleAuthController = (req, res) => {
+  console.log('login controller')
   let userData = req.body;
   User.findOne({ email: userData.email }).populate('music').populate('liked_songs')
     .then((result) => {
@@ -244,6 +245,7 @@ const googleAuthController = (req, res) => {
                 expires: new Date(Date.now() + 172800000),
                 httpOnly: true,
               })
+              .status(200)
               .json({
                 notification: {
                   title: "You successfully logged in.",
@@ -312,7 +314,7 @@ const profileUpdate = (req, res) => {
 
   User.findByIdAndUpdate(id, update, { new: true }).populate('music').populate('liked_songs')
     .then((result) => {
-      res.json(result);
+      res.status(200).json(result);
       // console.log("update result!: ", result);
     })
     .catch((err) => console.log(err));
@@ -326,7 +328,7 @@ const profileUpdateName = (req, res) => {
   console.log('name update:', name)
   User.findByIdAndUpdate(id, name, {new: true}).populate('music').populate('liked_songs')
   .then((result) => {
-    res.json(result)
+    res.status(200).json(result)
   }).catch(err => console.log(err))
 }
 
@@ -335,7 +337,7 @@ const checkGenreByUser = (req, res) => {
   console.log("req.user: ", req.user);
   User.findOne({ _id: req.user.result._id })
     .then((result) => {
-      res.json(result);
+      res.status(200).json(result);
     })
     .catch((err) => {
       console.log(err);
@@ -370,7 +372,7 @@ const pictureUpdate = (req, res) => {
             { image: resultUrl }, {new: true}
           ).populate('music').populate('liked_songs')
             .then((result) => {
-              res.json({
+              res.status(200).json({
                 result,
                 notification: {
                   title: "successfully updated profile picture",
@@ -456,7 +458,7 @@ module.exports = {
   emailVerify,
   login,
   logout,
-  getAllUsers,
+  // getAllUsers,
   googleAuthController,
   profileUpdate,
   getNearByUsers,
