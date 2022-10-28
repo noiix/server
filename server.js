@@ -115,13 +115,13 @@ io.on("connection", (socket) => {
 // server listen
 
 // const socketProxy= createProxyMiddleware('/socket', {
-//   target: 'http://localhost:5001',
+//   target: 'http://localhost:3000',
 //   changeOrigin: true,
 //   ws: true, 
 //   logLevel: 'debug',
 // });
 
 // app.use(proxy('/socket.io', {
-//   target: 'http://localhost:5001',
+//   target: 'http://localhost:3000',
 //   ws: true
 // }));
