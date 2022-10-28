@@ -193,27 +193,26 @@ const login = (req, res) => {
 // };
 
 const getNearByUsers = (req, res) => {
-  const currentLocation = req.user.result.location.city.name;
-  // console.log(currentLocation)
-  const userGenre = req.user.result.genre;
-  User.find({
-    $and: [
-      { "location.city.name": currentLocation },
-      { genre: { $elemMatch: { $in: userGenre } } },
-    ],
-  })
-    .populate("music")
-    .then((result) => {
-      if(result && result.length > 0) {
-        // console.log("users with music", result);
-        res.status(200).json({result});
-      }
-      else {
-        res.json({notification: {title: "Select your favorite genres to see like-minded users nearby!", type: "info"}})
-      }
-     
+  User.findById(req.user.result._id).then(result => {
+    User.find({
+      $and: [
+        { "location.city.name": result.location.city.name },
+        { genre: { $elemMatch: { $in: result.genre } } },
+      ],
     })
-    .catch((err) => console.log(err));
+      .populate("music")
+      .then((result) => {
+        if(result && result.length > 0) {
+          console.log("users with music", result);
+          res.status(200).json({result});
+        }
+        else {
+          res.json({result, notification: {title: "Select your favorite genres to see like-minded users nearby!", type: "info"}})
+        }
+      })
+      .catch((err) => console.log(err));
+  })
+  
 };
 
 const googleAuthController = (req, res) => {
