@@ -60,6 +60,7 @@ const createUser = (req, res) => {
                   notification: {
                     title: "Please, check your email to verify your account.",
                     type: "info",
+                    status: "ok"
                   },
                 })
               )
