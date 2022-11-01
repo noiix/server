@@ -48,5 +48,31 @@ const setMessageToRead = (req, res) => {
      Message.updateMany({chat: chat.chatId}, {read: true}, {new: true}).populate('sender', 'username image email').populate('chat').then(result => res.json(result))
 }
 
+const initialMessage = asyncHandler(async(req, res) => {
+    const message = req.body;
+    const chatId = await Chat.find({$and: [{users: {$elemMatch: {_id: req.user.result._id}}}, {users: {$elemMatch: {_id: '635befa7ff5ffbbb5a0458c7'}}}]})
+    console.log('chatId', chatId._id)
+    let newMessage = {
+        sender: '635befa7ff5ffbbb5a0458c7',
+        content: message.content,
+        chat: chatId._id
+    };
+    try {
+        let message = await Message.create(newMessage);
+        message = await message.populate('sender', 'username image');
+        message = await message.populate('chat');
+        message = await User.populate(message, {
+            path: 'chat.users',
+            select: 'username image email'
+        });
 
-module.exports = {sendMessage, allMessages, setMessageToRead}
+        await Chat.findByIdAndUpdate(req.body.chatId, {latestMessage: message});
+        res.json(message)
+    }catch (error) {
+        res.status(400);
+        throw new Error(error.message);
+    }
+})
+
+
+module.exports = {sendMessage, allMessages, setMessageToRead, initialMessage}

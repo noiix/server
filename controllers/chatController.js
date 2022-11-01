@@ -75,4 +75,19 @@ const fetchChats = asyncHandler(async(req, res) => {
   }
 })
 
-module.exports = {accessChat, fetchChats};
+const initialChatBot = asyncHandler(async(req, res) => {
+    let chatData = {
+      chatName: 'sender',
+      users: [req.user.result._id, '635befa7ff5ffbbb5a0458c7']
+    }
+    try{
+      const createdChat = await Chat.create(chatData);
+      const FullChat = await Chat.findOne({_id: createdChat._id}).populate('users', '-password')
+      res.json(FullChat)
+    }catch(error){
+      res.status(400);
+      throw new Error(error.message);
+    }
+})
+
+module.exports = {accessChat, fetchChats, initialChatBot};
