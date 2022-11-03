@@ -14,6 +14,6 @@ const {accessChat, fetchChats, initialChatBot} = require('../controllers/chatCon
 
 router.post('/', auth, accessChat);
 router.get('/', auth, fetchChats);
-router.get('/chatbot', auth, initialChatBot)
+// router.get('/chatbot', auth, initialChatBot)
 
 module.exports = router;
