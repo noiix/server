@@ -62,9 +62,19 @@ const createUser = (req, res) => {
                     type: "info",
                     status: "ok"
                   },
+                  
                 })
               )
-              .catch((error) => console.log(error));
+              .catch((error) => {
+                const err = error.map((err) => {
+                  ({ title: err.msg, type: "error" })
+                })
+                
+                res.status(200).json(
+                  err
+                )
+                console.log(error)
+              });
           });
         }
       })
