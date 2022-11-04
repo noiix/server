@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {auth} = require('../middleware/checkLoggedIn')
-const {accessChat, fetchChats, initialChatBot} = require('../controllers/chatController')
+const {accessChat, fetchChats} = require('../controllers/chatController')
 
 
 // router.get('/', (req, res) => {
@@ -14,6 +14,6 @@ const {accessChat, fetchChats, initialChatBot} = require('../controllers/chatCon
 
 router.post('/', auth, accessChat);
 router.get('/', auth, fetchChats);
-router.get('/chatbot', auth, initialChatBot)
+// router.get('/chatbot', auth, initialChatBot)
 
 module.exports = router;
