@@ -97,7 +97,7 @@ const emailVerify = (req, res) => {
         Verification.deleteOne(result)
           .then(() => {
             res.writeHead(302, {
-              location: "https://noix.vercel.app",
+              location: "https://noix.onrender.com",
             });
             res.end();
           })
