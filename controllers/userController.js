@@ -152,7 +152,8 @@ const login = (req, res) => {
                       res
                         .cookie("token", token, {
                           expires: new Date(Date.now() + 172800000),
-                          httpOnly: false,
+                          httpOnly: true,
+                          secure: true
                         })
                         .status(200)
                         .json({
@@ -254,7 +255,8 @@ const googleAuthController = (req, res) => {
             res
               .cookie("token", token, {
                 expires: new Date(Date.now() + 172800000),
-                httpOnly: false,
+                httpOnly: true,
+                secure: true
               })
               .status(200)
               .json({
@@ -288,7 +290,8 @@ const googleAuthController = (req, res) => {
               res
                 .cookie("token", token, {
                   expires: new Date(Date.now() + 172800000),
-                  httpOnly: false,
+                  httpOnly: true,
+                  secure: true
                 })
                 .json({
                   notification: {
