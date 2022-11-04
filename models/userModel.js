@@ -17,7 +17,7 @@ const userSchema = new Schema({
     type: String,
   },
   verified: { type: Boolean, default: false },
-  image: { type: String, default: "https://res.cloudinary.com/noix/image/upload/v1666965399/images/face-4_thaa9n.jpg" },
+  image: { type: String, default: "https://res.cloudinary.com/noix/image/upload/v1667567771/images/face-prev_bdksed.jpg" },
   createdAt: { type: Date },
   genre: [
     {
