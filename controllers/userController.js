@@ -1,3 +1,4 @@
+require('dotenv').config()
 const User = require("../models/userModel");
 const Music = require("../models/musicModel");
 const Verification = require("../models/verificationModel");
