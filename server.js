@@ -29,7 +29,7 @@ app.use(errorController);
 
 //routes
 app.get("/", (req, res) => {
-  console.log('E.T. : "Call home"')
+  console.log('E.T. : "Call home now"')
 });
 app.use("/user", userRouter);
 app.use("/music", musicRouter);
