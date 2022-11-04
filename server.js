@@ -19,11 +19,11 @@ const errorController = require("./controllers/errorController");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cors({origin: 'https://noix.onrender.com', credentials: true}));
-app.use(cookieParser());
 
 app.use(errorController);
 
