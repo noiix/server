@@ -24,18 +24,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cors({origin: 'https://noix.vercel.app', credentials: true}));
 app.use(cookieParser());
-// session configuration
-
-// app.use(
-//   session({
-//     secret: process.env.SESSIONKEY,
-//     resave: true,
-//     saveUninitialized: true,
-//     cookie: {
-//       maxAge: 1000 * 60 * 60 * 12,
-//     },
-//   })
-// );
 
 app.use(errorController);
 
