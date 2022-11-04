@@ -41,7 +41,7 @@ app.use(errorController);
 
 //routes
 app.get("/", (req, res) => {
-  console.log('E.T. : "Call home"')
+  res.json('E.T. : "Call home"')
 });
 app.use("/user", userRouter);
 app.use("/music", musicRouter);
