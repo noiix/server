@@ -154,7 +154,9 @@ const login = (req, res) => {
                         .cookie("token", token, {
                           expires: new Date(Date.now() + 172800000),
                           httpOnly: true,
-                          secure: true
+                          secure: true !== 'development',
+                          sameSite: 'strict',
+                          path: '/'
                         })
                         .status(200)
                         .json({
@@ -257,7 +259,9 @@ const googleAuthController = (req, res) => {
               .cookie("token", token, {
                 expires: new Date(Date.now() + 172800000),
                 httpOnly: true,
-                secure: true
+                secure: true !== 'development',
+                sameSite: 'strict',
+                path: '/'
               })
               .status(200)
               .json({
@@ -292,7 +296,9 @@ const googleAuthController = (req, res) => {
                 .cookie("token", token, {
                   expires: new Date(Date.now() + 172800000),
                   httpOnly: true,
-                  secure: true
+                  secure: true !== 'development',
+                  sameSite: 'strict',
+                  path: '/'
                 })
                 .json({
                   notification: {
