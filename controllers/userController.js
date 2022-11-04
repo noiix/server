@@ -155,7 +155,7 @@ const login = (req, res) => {
                           expires: new Date(Date.now() + 172800000),
                           httpOnly: true,
                           secure: true !== 'development',
-                          sameSite: 'strict',
+                          sameSite: 'lax',
                           path: '/'
                         })
                         .status(200)
@@ -260,7 +260,7 @@ const googleAuthController = (req, res) => {
                 expires: new Date(Date.now() + 172800000),
                 httpOnly: true,
                 secure: true !== 'development',
-                sameSite: 'strict',
+                sameSite: 'lax',
                 path: '/'
               })
               .status(200)
@@ -297,7 +297,7 @@ const googleAuthController = (req, res) => {
                   expires: new Date(Date.now() + 172800000),
                   httpOnly: true,
                   secure: true !== 'development',
-                  sameSite: 'strict',
+                  sameSite: 'lax',
                   path: '/'
                 })
                 .json({
