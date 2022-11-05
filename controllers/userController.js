@@ -156,7 +156,8 @@ const login = (req, res) => {
                           httpOnly: true,
                           secure: true !== 'development',
                           sameSite: 'none',
-                          path: '/'
+                          path: '/',
+                          domain: '.onrender.com'
                         })
                         .status(200)
                         .json({
@@ -261,7 +262,8 @@ const googleAuthController = (req, res) => {
                 httpOnly: true,
                 secure: true !== 'development',
                 sameSite: 'none',
-                path: '/'
+                path: '/',
+                domain: '.onrender.com'
               })
               .status(200)
               .json({
@@ -298,7 +300,8 @@ const googleAuthController = (req, res) => {
                   httpOnly: true,
                   secure: true !== 'development',
                   sameSite: 'none',
-                  path: '/'
+                  path: '/',
+                  domain: '.onrender.com'
                 })
                 .json({
                   notification: {
