@@ -19,11 +19,11 @@ const errorController = require("./controllers/errorController");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cors({origin: 'https://noix.onrender.com', credentials: true}));
+app.use(cookieParser());
 
 app.use(errorController);
 
@@ -54,7 +54,6 @@ io.on("connection", (socket) => {
   socket.on('setup', (userData) => {
     socket.join(userData._id)
     socket.emit('connected');
-    // console.log(userData._id)
   });
 
   socket.on('join chat', (room) => {
@@ -91,4 +90,6 @@ io.on("connection", (socket) => {
     socket.leave(userData._id)
   })
 })
+
+//add comment
 

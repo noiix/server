@@ -155,8 +155,9 @@ const login = (req, res) => {
                           expires: new Date(Date.now() + 172800000),
                           httpOnly: true,
                           secure: true !== 'development',
-                          sameSite: 'lax',
-                          path: '/'
+                          sameSite: 'none',
+                          path: '/',
+                          domain: '.onrender.com'
                         })
                         .status(200)
                         .json({
@@ -260,8 +261,9 @@ const googleAuthController = (req, res) => {
                 expires: new Date(Date.now() + 172800000),
                 httpOnly: true,
                 secure: true !== 'development',
-                sameSite: 'lax',
-                path: '/'
+                sameSite: 'none',
+                path: '/',
+                domain: '.onrender.com'
               })
               .status(200)
               .json({
@@ -297,8 +299,9 @@ const googleAuthController = (req, res) => {
                   expires: new Date(Date.now() + 172800000),
                   httpOnly: true,
                   secure: true !== 'development',
-                  sameSite: 'lax',
-                  path: '/'
+                  sameSite: 'none',
+                  path: '/',
+                  domain: '.onrender.com'
                 })
                 .json({
                   notification: {
