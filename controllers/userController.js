@@ -153,11 +153,7 @@ const login = (req, res) => {
                       res
                         .cookie("token", token, {
                           expires: new Date(Date.now() + 172800000),
-                          httpOnly: true,
-                          secure: true !== 'development',
-                          sameSite: 'none',
-                          path: '/',
-                          domain: '.onrender.com'
+                          httpOnly: true
                         })
                         .status(200)
                         .json({
@@ -259,11 +255,7 @@ const googleAuthController = (req, res) => {
             res
               .cookie("token", token, {
                 expires: new Date(Date.now() + 172800000),
-                httpOnly: true,
-                secure: true !== 'development',
-                sameSite: 'none',
-                path: '/',
-                domain: '.onrender.com'
+                httpOnly: true
               })
               .status(200)
               .json({
@@ -297,11 +289,7 @@ const googleAuthController = (req, res) => {
               res
                 .cookie("token", token, {
                   expires: new Date(Date.now() + 172800000),
-                  httpOnly: true,
-                  secure: true !== 'development',
-                  sameSite: 'none',
-                  path: '/',
-                  domain: '.onrender.com'
+                  httpOnly: true
                 })
                 .json({
                   notification: {
