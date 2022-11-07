@@ -5,7 +5,7 @@ const {accessChat, fetchChats} = require('../controllers/chatController')
 
 
 router.post('/', auth, accessChat);
-router.get('/', auth, fetchChats);
+router.post('/getallchats', auth, fetchChats);
 // router.get('/chatbot', auth, initialChatBot)
 
 module.exports = router;
