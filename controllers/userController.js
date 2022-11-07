@@ -48,7 +48,7 @@ const createUser = (req, res) => {
                   sendMail(
                     createdUser.email,
                     "verify email",
-                    `Hello, This email address: ${createdUser.email} is used to register in Noix. To verify your account please click on <a href="https://server.noix.space/user/verify?authId=${createdUser._id}&secretKey=${random}">this link</a>
+                    `Hello, This email address: ${createdUser.email} is used to register in Noix. To verify your account please click on <a href="https://noix-server.onrender.com/user/verify?authId=${createdUser._id}&secretKey=${random}">this link</a>
                             Thanks,
                             Your nöix Team.`
                   );
