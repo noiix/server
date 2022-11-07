@@ -16,6 +16,7 @@ const chatRouter = require("./routes/chatRouter");
 const messageRouter = require('./routes/messageRouter');
 const errorController = require("./controllers/errorController");
 // const { logError } = require("./errorHandler");
+const path = require('path')
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -35,6 +36,9 @@ app.use("/user", userRouter);
 app.use("/music", musicRouter);
 app.use("/chat", chatRouter);
 app.use("/messages", messageRouter);
+app.get('*', (req, res) => {
+  res.sendFile('index.html', {root: path.join(__dirname, '../public')})
+})
 
 const server = app.listen(PORT, () => {
   console.log("listening on port " + PORT);
