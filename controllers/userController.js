@@ -122,6 +122,7 @@ const login = (req, res) => {
     console.log(errors.array());
   } else {
     const loginData = req.body;
+    console.log('client ip', req.socket.remoteAddress);
     User.findOne({ email: loginData.email })
       .then((result) => {
         if (result != null) {
@@ -136,7 +137,7 @@ const login = (req, res) => {
                   });
                   const apiCall = unirest(
                     "GET",
-                    "https://ip-geo-location.p.rapidapi.com/ip/check"
+                    `https://ip-geo-location.p.rapidapi.com/ip/${req.socket.remoteAddress}`
                   );
                   apiCall.headers({
                     "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
@@ -147,7 +148,7 @@ const login = (req, res) => {
                     if (res.error) throw new Error(location.error);
                     User.findOneAndUpdate(
                       { email: loginData.email },
-                      { location: location.body }
+                      { location: loginData.location}
                     ).populate('music').populate('liked_songs').then((info) => {
                       console.log("result", result);
                       res
@@ -238,7 +239,7 @@ const googleAuthController = (req, res) => {
         });
         const apiCall = unirest(
           "GET",
-          "https://ip-geo-location.p.rapidapi.com/ip/check"
+          `https://ip-geo-location.p.rapidapi.com/ip/${req.socket.remoteAddress}`
         );
         apiCall.headers({
           "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
@@ -249,7 +250,7 @@ const googleAuthController = (req, res) => {
           if (res.error) throw new Error(location.error);
           User.findOneAndUpdate(
             { email: userData.email },
-            { location: location.body }
+            { location: userData.location }
           ).populate('music').populate('liked_songs').then(() => {
             // console.log("result", result);
             res
@@ -270,7 +271,7 @@ const googleAuthController = (req, res) => {
       } else {
         const apiCall = unirest(
           "GET",
-          "https://ip-geo-location.p.rapidapi.com/ip/check"
+          `https://ip-geo-location.p.rapidapi.com/ip/${req.socket.remoteAddress}`
         );
         apiCall.headers({
           "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
@@ -279,8 +280,8 @@ const googleAuthController = (req, res) => {
         });
         apiCall.end(function (location) {
           if (res.error) throw new Error(location.error);
-          // console.log(location.body);
-          userData.location = location.body;
+          console.log(location.body);
+          userData.location = req.body.location;
           User.create(userData)
             .then((result) => {
               const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
