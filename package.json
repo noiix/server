@@ -40,7 +40,6 @@
     "nodemon": "^2.0.20",
     "socket.io": "^4.5.2",
     "unirest": "^0.6.0"
-  },
-  "proxy": "https://noix-server.onrender.com/"
+  }
 }
 
