@@ -133,7 +133,7 @@ const login = (req, res) => {
                   });
                   const apiCall = unirest(
                     "GET",
-                    `https://ip-geo-location.p.rapidapi.com/ip/${req.socket.remoteAddress}`
+                    `https://ip-geo-location.p.rapidapi.com/ip/${req.connection.socket.remoteAddress}`
                   );
                   apiCall.headers({
                     "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
@@ -142,6 +142,7 @@ const login = (req, res) => {
                   });
                   apiCall.end(function (location) {
                     if (res.error) throw new Error(location.error);
+                    console.log('location', {location: location.body})
                     User.findOneAndUpdate(
                       { email: loginData.email },
                       { location: loginData.location}
