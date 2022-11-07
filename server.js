@@ -26,7 +26,7 @@ app.use(bodyParser.json());
 app.use(cors({origin: 'https://client.noix.space', credentials: true}));
 app.use(cookieParser());
 
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, '../client_noix/build')))
 
 //routes
 app.get("/", (req, res) => {
@@ -39,7 +39,7 @@ app.use("/messages", messageRouter);
 app.get('*', (req, res) => {
   // res.sendFile('index.html', {root: path.join(__dirname, '../public')})
   // res.sendFile(path.join(__dirname, 'public/index.html'))
-  res.sendFile(path.join(__dirname, '../client_noix/public/index.html'))
+  res.sendFile(path.join(__dirname, '../client_noix/build/index.html'))
 })
 
 app.use(errorController);
