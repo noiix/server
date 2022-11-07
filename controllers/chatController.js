@@ -2,32 +2,6 @@ const asyncHandler = require('express-async-handler');
 const Chat = require('../models/chatModel');
 const User = require('../models/userModel')
 
-// const server = require('../server')
-// const io = require('socket.io')(server)
-
-// const connect = () => {
-//   io.on("connection", (socket) => {
-//     console.log("User connected");
-//     console.log(socket.handshake.query.userName);
-
-//     socket.join(socket.handshake.query.userName);
-
-//     // socket.on('userMessage', messageInfo => {
-//     //     console.log(messageInfo)
-
-//     //     io.emit('messageFromSender', messageInfo)
-//     // })
-
-//     socket.on("receivingUser", (messageInfo) => {
-//       console.log(messageInfo);
-//       socket.on(messageInfo.to).emit("messageFromServer", messageInfo);
-//     });
-
-//     io.emit("user", socket.handshake.query.userName);
-//   });
-// };
-
-
 const accessChat = asyncHandler(async (req, res) => {
   const {userId} = req.body;
   if(!userId) {
