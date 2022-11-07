@@ -28,8 +28,6 @@ app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, 'public')))
 
-app.use(errorController);
-
 //routes
 app.get("/", (req, res) => {
   res.json('E.T. : "Call home"')
@@ -43,6 +41,8 @@ app.get('*', (req, res) => {
   // res.sendFile(path.join(__dirname, 'public/index.html'))
   res.sendFile(path.join(__dirname, '../client_noix/public/index.html'))
 })
+
+app.use(errorController);
 
 const server = app.listen(PORT, () => {
   console.log("listening on port " + PORT);
