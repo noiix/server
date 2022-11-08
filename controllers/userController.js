@@ -221,9 +221,9 @@ const googleAuthController = (req, res) => {
   User.findOne({ email: userData.email }).populate('music').populate('liked_songs')
     .then((result) => {
       if (result) {
-        // const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
-        //   expiresIn: "1h",
-        // });
+        const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
+          expiresIn: "1h",
+        });
         // const apiCall = unirest(
         //   "GET",
         //   "https://ip-geo-location.p.rapidapi.com/ip/check"
