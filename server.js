@@ -16,37 +16,33 @@ const chatRouter = require("./routes/chatRouter");
 const messageRouter = require('./routes/messageRouter');
 const errorController = require("./controllers/errorController");
 // const { logError } = require("./errorHandler");
+const path = require('path')
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.use(cors({origin: 'http://localhost:3000', credentials: true}));
+// app.use(cors({origin: 'https://client.noix.space', credentials: true}));
 app.use(cookieParser());
-// session configuration
 
-// app.use(
-//   session({
-//     secret: process.env.SESSIONKEY,
-//     resave: true,
-//     saveUninitialized: true,
-//     cookie: {
-//       maxAge: 1000 * 60 * 60 * 12,
-//     },
-//   })
-// );
-
-app.use(errorController);
+app.use(express.static(path.join(__dirname, 'public')))
 
 //routes
 app.get("/", (req, res) => {
-  console.log('E.T. : "Call home"')
+  res.json('E.T. : "Call home"')
 });
 app.use("/user", userRouter);
 app.use("/music", musicRouter);
 app.use("/chat", chatRouter);
 app.use("/messages", messageRouter);
+app.get('*', (req, res) => {
+  // res.sendFile('index.html', {root: path.join(__dirname, '../public')})
+  // res.sendFile(path.join(__dirname, 'public/index.html'))
+  res.sendFile(path.join(__dirname, 'public/index.html'))
+})
+
+app.use(errorController);
 
 const server = app.listen(PORT, () => {
   console.log("listening on port " + PORT);
@@ -66,7 +62,6 @@ io.on("connection", (socket) => {
   socket.on('setup', (userData) => {
     socket.join(userData._id)
     socket.emit('connected');
-    // console.log(userData._id)
   });
 
   socket.on('join chat', (room) => {
@@ -104,24 +99,5 @@ io.on("connection", (socket) => {
   })
 })
 
+//add comment
 
-// Dilshods example
-// app.use((err,req,res,next)=>{
-//   res.json(err)
-// })
-
-// app.use(logError)
-
-// server listen
-
-// const socketProxy= createProxyMiddleware('/socket', {
-//   target: 'http://localhost:3000',
-//   changeOrigin: true,
-//   ws: true, 
-//   logLevel: 'debug',
-// });
-
-// app.use(proxy('/socket.io', {
-//   target: 'http://localhost:3000',
-//   ws: true
-// }));

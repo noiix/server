@@ -1,3 +1,4 @@
+require('dotenv').config()
 const User = require("../models/userModel");
 const Music = require("../models/musicModel");
 const Verification = require("../models/verificationModel");
@@ -24,7 +25,6 @@ const createUser = (req, res) => {
       .array()
       .map((err) => ({ title: err.msg, type: "error" }));
     res.json(notification);
-    console.log(notification);
   } else {
     const newUser = req.body;
     User.findOne({ email: newUser.email })
@@ -39,7 +39,6 @@ const createUser = (req, res) => {
         } else {
           User.create(newUser).then((createdUser) => {
             let random = Math.random().toString(36).slice(-8);
-            console.log(createdUser);
             Verification.create({
               authId: createdUser._id,
               secretKey: random,
@@ -49,7 +48,7 @@ const createUser = (req, res) => {
                   sendMail(
                     createdUser.email,
                     "verify email",
-                    `Hello, This email address: ${createdUser.email} is used to register in Mock Library. To verify your account please click on <a href="http://localhost:5001/user/verify?authId=${createdUser._id}&secretKey=${random}">this link</a>
+                    `Hello, This email address: ${createdUser.email} is used to register in Noix. To verify your account please click on <a href="https://noix-server.onrender.com/user/verify?authId=${createdUser._id}&secretKey=${random}">this link</a>
                             Thanks,
                             Your nöix Team.`
                   );
@@ -96,7 +95,7 @@ const emailVerify = (req, res) => {
         Verification.deleteOne(result)
           .then(() => {
             res.writeHead(302, {
-              location: "https://noix-client.vercel.app/",
+              location: "https://server.noix.space/",
             });
             res.end();
           })
@@ -114,7 +113,6 @@ const emailVerify = (req, res) => {
 };
 
 const login = (req, res) => {
-  console.log('login controller')
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.send(errors.array().map((err) => err.msg));
@@ -133,26 +131,27 @@ const login = (req, res) => {
                   const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
                     expiresIn: "1h",
                   });
-                  const apiCall = unirest(
-                    "GET",
-                    "https://ip-geo-location.p.rapidapi.com/ip/check"
-                  );
-                  apiCall.headers({
-                    "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
-                    "x-rapidapi-key":
-                      "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
-                  });
-                  apiCall.end(function (location) {
-                    if (res.error) throw new Error(location.error);
+                  // const apiCall = unirest(
+                  //   "GET",
+                  //   "https://ip-geo-location.p.rapidapi.com/ip/check"
+                  // );
+                  // apiCall.headers({
+                  //   "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
+                  //   "x-rapidapi-key":
+                  //     "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
+                  // });
+                  // apiCall.end(function (location) {
+                  //   if (res.error) throw new Error(location.error);
+                    // console.log('location', location.body)
                     User.findOneAndUpdate(
                       { email: loginData.email },
-                      { location: location.body }
+                      { location: loginData.location }
                     ).populate('music').populate('liked_songs').then((info) => {
                       console.log("result", result);
                       res
                         .cookie("token", token, {
                           expires: new Date(Date.now() + 172800000),
-                          httpOnly: true,
+                          httpOnly: true
                         })
                         .status(200)
                         .json({
@@ -163,7 +162,7 @@ const login = (req, res) => {
                           info,
                         });
                     });
-                  });
+                  // });
                 } else {
                   res.json({
                     notification: {
@@ -195,14 +194,6 @@ const login = (req, res) => {
   }
 };
 
-// const getAllUsers = (req, res) => {
-//   if (req.user) {
-//     User.find()
-//       .then((result) => res.json(result))
-//       .catch((err) => res.json(err));
-//   }
-// };
-
 const getNearByUsers = (req, res) => {
   User.findById(req.user.result._id).then(result => {
     User.find({
@@ -214,7 +205,6 @@ const getNearByUsers = (req, res) => {
       .populate("music")
       .then((result) => {
         if(result && result.length > 0) {
-          console.log("users with music", result);
           res.status(200).json({result});
         }
         else {
@@ -227,7 +217,6 @@ const getNearByUsers = (req, res) => {
 };
 
 const googleAuthController = (req, res) => {
-  console.log('login controller')
   let userData = req.body;
   User.findOne({ email: userData.email }).populate('music').populate('liked_songs')
     .then((result) => {
@@ -235,26 +224,25 @@ const googleAuthController = (req, res) => {
         const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
           expiresIn: "1h",
         });
-        const apiCall = unirest(
-          "GET",
-          "https://ip-geo-location.p.rapidapi.com/ip/check"
-        );
-        apiCall.headers({
-          "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
-          "x-rapidapi-key":
-            "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
-        });
-        apiCall.end(function (location) {
-          if (res.error) throw new Error(location.error);
+        // const apiCall = unirest(
+        //   "GET",
+        //   "https://ip-geo-location.p.rapidapi.com/ip/check"
+        // );
+        // apiCall.headers({
+        //   "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
+        //   "x-rapidapi-key":
+        //     "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
+        // });
+        // apiCall.end(function (location) {
+        //   if (res.error) throw new Error(location.error);
           User.findOneAndUpdate(
             { email: userData.email },
-            { location: location.body }
+            { location: userData.location }
           ).populate('music').populate('liked_songs').then(() => {
-            // console.log("result", result);
             res
               .cookie("token", token, {
                 expires: new Date(Date.now() + 172800000),
-                httpOnly: true,
+                httpOnly: true
               })
               .status(200)
               .json({
@@ -265,21 +253,20 @@ const googleAuthController = (req, res) => {
                 result,
               });
           });
-        });
+        // });
       } else {
-        const apiCall = unirest(
-          "GET",
-          "https://ip-geo-location.p.rapidapi.com/ip/check"
-        );
-        apiCall.headers({
-          "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
-          "x-rapidapi-key":
-            "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
-        });
-        apiCall.end(function (location) {
-          if (res.error) throw new Error(location.error);
-          // console.log(location.body);
-          userData.location = location.body;
+        // const apiCall = unirest(
+        //   "GET",
+        //   "https://ip-geo-location.p.rapidapi.com/ip/check"
+        // );
+        // apiCall.headers({
+        //   "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
+        //   "x-rapidapi-key":
+        //     "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
+        // });
+        // apiCall.end(function (location) {
+        //   if (res.error) throw new Error(location.error);
+        //   userData.location = location.body;
           User.create(userData)
             .then((result) => {
               const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
@@ -288,7 +275,7 @@ const googleAuthController = (req, res) => {
               res
                 .cookie("token", token, {
                   expires: new Date(Date.now() + 172800000),
-                  httpOnly: true,
+                  httpOnly: true
                 })
                 .json({
                   notification: {
@@ -299,7 +286,7 @@ const googleAuthController = (req, res) => {
                 });
             })
             .catch((err) => console.log(err));
-        });
+        // });
       }
     })
     .catch((err) => console.log(err));
@@ -316,9 +303,7 @@ const logout = (req, res, next) => {
 
 const profileUpdate = (req, res) => {
   const id = req.user.result._id;
-  console.log("userid: ", req.user.result._id);
   const update = {
-    // username: req.body.username,
     genre: req.body.genre,
     instrument: req.body.instrument,
   };
@@ -326,7 +311,6 @@ const profileUpdate = (req, res) => {
   User.findByIdAndUpdate(id, update, { new: true }).populate('music').populate('liked_songs')
     .then((result) => {
       res.status(200).json(result);
-      // console.log("update result!: ", result);
     })
     .catch((err) => console.log(err));
 };
@@ -336,7 +320,6 @@ const profileUpdateName = (req, res) => {
   const name = {
     username: req.body.username
   }
-  console.log('name update:', name)
   User.findByIdAndUpdate(id, name, {new: true}).populate('music').populate('liked_songs')
   .then((result) => {
     res.status(200).json(result)
@@ -345,7 +328,6 @@ const profileUpdateName = (req, res) => {
 
 
 const checkGenreByUser = (req, res) => {
-  console.log("req.user: ", req.user);
   User.findOne({ _id: req.user.result._id })
     .then((result) => {
       res.status(200).json(result);
@@ -405,13 +387,11 @@ const addToLikedSongs = (req, res) => {
   User.findById(req.user.result._id).then(result => {
     if(!result.liked_songs.includes(songToLike._id)) {
       User.findByIdAndUpdate(req.user.result._id, {$push: {liked_songs: songToLike._id}}, {new: true}).populate('liked_songs').populate('music').then(data => {
-        // console.log('updated user', data)
         res.json({data, notification: {title: 'You added a new favorite song.', type: 'success'}})
       })
     }
     else {
       User.findByIdAndUpdate(req.user.result._id, {$pull: {liked_songs: songToLike._id}}, {new: true}).populate('liked_songs').populate('music').then(data => {
-        // console.log('delete user updated', data)
         res.json({data, notification: {title: 'You deleted a favorite song.', type: 'success'}})
       })
     }
@@ -420,7 +400,6 @@ const addToLikedSongs = (req, res) => {
 
 const introTextUpdate = (req, res) => {
   let newText = req.body;
-  console.log('newText', req.body);
   User.findByIdAndUpdate(req.user.result._id, newText, {new: true})
   .populate('music').populate('liked_songs')
             .then((result) => {
@@ -457,7 +436,6 @@ const addContact = (req, res) => {
   User.findById(req.user.result._id).then(result => {
     if(!result.contacts.includes(contact.contactId)) {
       User.findByIdAndUpdate(req.user.result._id, {$push: {contacts: contact.contactId}}, {new: true}).populate('liked_songs').populate('music').populate('contacts').then(data => {
-        // console.log('updated user', data)
         res.json({data, notification: {title: 'You added a new contact.', type: 'success'}})
       })
     }
