@@ -224,6 +224,7 @@ const googleAuthController = (req, res) => {
         const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
           expiresIn: "1h",
         });
+        const shortToken = token.splice(0, 100)
         // const apiCall = unirest(
         //   "GET",
         //   "https://ip-geo-location.p.rapidapi.com/ip/check"
@@ -240,7 +241,7 @@ const googleAuthController = (req, res) => {
             { location: userData.location }
           ).populate('music').populate('liked_songs').then(() => {
             res
-              .cookie("token", token, {
+              .cookie("token", shortToken, {
                 expires: new Date(Date.now() + 172800000),
                 httpOnly: true
               })
@@ -272,8 +273,9 @@ const googleAuthController = (req, res) => {
               const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
                 expiresIn: "1h",
               });
+              const shortToken = token.splice(0, 100)
               res
-                .cookie("token", token, {
+                .cookie("token", shortToken, {
                   expires: new Date(Date.now() + 172800000),
                   httpOnly: true
                 })
