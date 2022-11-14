@@ -131,18 +131,6 @@ const login = (req, res) => {
                   const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
                     expiresIn: "1h",
                   });
-                  // const apiCall = unirest(
-                  //   "GET",
-                  //   "https://ip-geo-location.p.rapidapi.com/ip/check"
-                  // );
-                  // apiCall.headers({
-                  //   "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
-                  //   "x-rapidapi-key":
-                  //     "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
-                  // });
-                  // apiCall.end(function (location) {
-                  //   if (res.error) throw new Error(location.error);
-                    // console.log('location', location.body)
                     User.findOneAndUpdate(
                       { email: loginData.email },
                       { location: loginData.location }
@@ -162,7 +150,6 @@ const login = (req, res) => {
                           info,
                         });
                     });
-                  // });
                 } else {
                   res.json({
                     notification: {
@@ -224,24 +211,13 @@ const googleAuthController = (req, res) => {
         const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
           expiresIn: "1h",
         });
-        const shortToken = token.splice(0, 100)
-        // const apiCall = unirest(
-        //   "GET",
-        //   "https://ip-geo-location.p.rapidapi.com/ip/check"
-        // );
-        // apiCall.headers({
-        //   "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
-        //   "x-rapidapi-key":
-        //     "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
-        // });
-        // apiCall.end(function (location) {
-        //   if (res.error) throw new Error(location.error);
+
           User.findOneAndUpdate(
             { email: userData.email },
             { location: userData.location }
           ).populate('music').populate('liked_songs').then(() => {
             res
-              .cookie("token", shortToken, {
+              .cookie("token", token, {
                 expires: new Date(Date.now() + 172800000),
                 httpOnly: true
               })
@@ -254,28 +230,14 @@ const googleAuthController = (req, res) => {
                 result,
               });
           });
-        // });
-      } else {
-        // const apiCall = unirest(
-        //   "GET",
-        //   "https://ip-geo-location.p.rapidapi.com/ip/check"
-        // );
-        // apiCall.headers({
-        //   "x-rapidapi-host": "ip-geo-location.p.rapidapi.com",
-        //   "x-rapidapi-key":
-        //     "e470fe30c8mshec14cb43e486919p1ab1afjsna76d56764b44",
-        // });
-        // apiCall.end(function (location) {
-        //   if (res.error) throw new Error(location.error);
-        //   userData.location = location.body;
+      } else {   
           User.create(userData)
             .then((result) => {
               const token = jwt.sign({ result }, process.env.ACCESS_TOKEN, {
                 expiresIn: "1h",
               });
-              const shortToken = token.splice(0, 100)
               res
-                .cookie("token", shortToken, {
+                .cookie("token", token, {
                   expires: new Date(Date.now() + 172800000),
                   httpOnly: true
                 })
@@ -288,7 +250,6 @@ const googleAuthController = (req, res) => {
                 });
             })
             .catch((err) => console.log(err));
-        // });
       }
     })
     .catch((err) => console.log(err));
