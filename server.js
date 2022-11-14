@@ -23,10 +23,10 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.use(cors({origin: 'http://localhost:3000', credentials: true}));
+// app.use(cors({origin: 'http://localhost:3000', credentials: true}));
 app.use(cookieParser());
 
-app.use(errorController);
+app.use(express.static(path.join(__dirname, 'public')))
 
 //routes
 app.get("/", (req, res) => {
@@ -37,8 +37,12 @@ app.use("/music", musicRouter);
 app.use("/chat", chatRouter);
 app.use("/messages", messageRouter);
 app.get('*', (req, res) => {
-  res.sendFile('index.html', {root: path.join(__dirname, '../public')})
+  // res.sendFile('index.html', {root: path.join(__dirname, '../public')})
+  // res.sendFile(path.join(__dirname, 'public/index.html'))
+  res.sendFile(path.join(__dirname, 'public/index.html'))
 })
+
+app.use(errorController);
 
 const server = app.listen(PORT, () => {
   console.log("listening on port " + PORT);
